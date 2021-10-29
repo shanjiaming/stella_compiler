@@ -1,10 +1,6 @@
 grammar Mx;
-@header {
-    package Parser;
-}
 
-program: declare* EOF;
-declare:';'|varDeclare';'|classDeclare|funcDeclare;
+program: (';'|varDef';'|classDef|funcDef)* EOF;
 
 Int:'int';
 Bool:'bool';
@@ -32,70 +28,65 @@ StringConst: '"' (~["\n\r\\] | '\\' ["nr\\])*? '"';
 Identifier: [a-zA-Z][a-zA-Z0-9_]* ;
 
 baseType: Bool | Int | String | Identifier ;
-typename: typename '[' ']' | baseType;
-constType: IntConst | StringConst | BoolConst | Null;
+type: baseType ('[' ']')*;
+constValue: IntConst | StringConst | BoolConst | Null;
 
 
-varDeclare: typename varSingleDeclare (',' varSingleDeclare)*;
-varSingleDeclare: Identifier ('['expression']' | '='expression)?;
-funcDeclare:(typename | Void) Identifier parameterList '{' statement* '}';
-parameterList: '('(typename Identifier(','typename Identifier)*)?')';
+varDef: type varSingleDef (',' varSingleDef)*;
+varSingleDef: Identifier ('['expr']' | '='expr)?;
+funcDef:(type | Void) Identifier parameterList suite;
+parameterList: '('(type Identifier(','type Identifier)*)?')';
 
-classDeclare:Class Identifier '{' classIdentity* '}';
-classIdentity:';' | constructDeclare | varDeclare | funcDeclare;
-constructDeclare:Identifier '('')' '{' statement* '}';
-
+classDef:Class Identifier '{' (';' | constructDef | varDef | funcDef)* '}';
+constructDef:Identifier '('')' suite;
 
 
-expressionList: '('(expression(','expression)*)?')';
-value: Identifier | constType | newExpr | Identifier expressionList | lambda | This;
-newExpr: New (baseType | baseType '('expression')'| baseType ('['expression']')+ ('['']')* | Identifier parameterList);
-lambda:'[&]'parameterList'->''{'statement*'}' expressionList;
+exprList: '('(expr(','expr)*)?')';
+value: Identifier | constValue | newItem | Identifier exprList | lambda | This;
+newItem:  baseType ('[' expr ']')* ('['']')+ ('[' expr ']')+          #newInvalidArray
+         	| baseType ('[' expr ']')+ ('[' ']')*                     #newArray
+         	| baseType ('('')')?                                      #newClass;
 
-expression
-    :   value                                           #valueExpr
-    |   '('expression')'                                #parenExpr
-    |   expression '['expression']'                     #indexExpr
-    |   expression '.' expression                       #binaryExpr
-    |   <assoc=right> op=('!'|'~')   expression         #unaryExpr
-    |   <assoc=right> op=('+'|'-')   expression         #unaryExpr
-    |   <assoc=right> op=('++'|'--') expression         #prefixExpr
-    |   <assoc=right> expression op=('++'|'--')         #suffixExpr
-    |   expression op=('*'|'/'|'%')   expression        #binaryExpr
-    |   expression op=('+'|'-')   expression            #binaryExpr
-    |   expression op=('<<'|'>>') expression            #binaryExpr
-    |   expression op=('<'|'>'|'<='|'>=') expression    #binaryExpr
-    |   expression op=('=='|'!=') expression            #binaryExpr
-    |   expression '&'  expression                      #binaryExpr
-    |   expression '^'  expression                      #binaryExpr
-    |   expression '|'  expression                      #binaryExpr
-    |   expression '&&' expression                      #binaryExpr
-    |   expression '||' expression                      #binaryExpr
-    |   <assoc=right> expression '=' expression         #binaryExpr
+lambda:'[&]'parameterList'->'suite exprList;
+
+expr
+    :   value                                        #valueExpr
+    |   '('expr')'                                   #parenExpr
+    |   expr op=('++'|'--')                          #suffixExpr
+    |   <assoc=right> New newItem                    #newArrayExpr
+    |   expr '['expr']'                              #indexExpr
+    |   expr '.' Identifier exprList?                #memberExpr
+    |   <assoc=right> op=('++'|'--') expr            #prefixExpr
+    |   <assoc=right> op=('!'|'~')   expr            #unaryExpr
+    |   <assoc=right> op=('+'|'-')   expr            #unaryExpr
+    |   expr op=('*'|'/'|'%')   expr                 #binaryExpr
+    |   expr op=('+'|'-')   expr                     #binaryExpr
+    |   expr op=('<<'|'>>') expr                     #binaryExpr
+    |   expr op=('<'|'>'|'<='|'>=') expr             #binaryExpr
+    |   expr op=('=='|'!=') expr                     #binaryExpr
+    |   expr op='&'  expr                            #binaryExpr
+    |   expr op='^'  expr                            #binaryExpr
+    |   expr op='|'  expr                            #binaryExpr
+    |   expr op='&&' expr                            #binaryExpr
+    |   expr op='||' expr                            #binaryExpr
+    |   <assoc=right> expr '=' expr                  #assignExpr
+    ;
+suite:'{' stmt* '}';
+
+stmt
+    :   ';'                                       #emptyStmt
+    |   varDef';'                                 #varDefStmt
+    |   expr ';'                                  #exprStmt
+    |   If '('expr')' stmt (Else stmt)?           #ifStmt
+    |   While '('expr?')' stmt                    #whileStmt
+    |   For '('forInit = expr?';'forCondition = expr?';'forIncrease = expr?')' stmt    #forStmt
+    |   Return expr? ';'                          #returnStmt
+    |   Break ';'                                 #breakStmt
+    |   Continue ';'                              #continueStmt
+    |   suite                                     #blockStmt
     ;
 
-suite:'{' statement* '}';
 
-
-
-statement
-    :   ';'                                             #emptyStmt
-    |   typename Identifier '=' expression ';'          #assignStmt
-    |   typename Identifier (',' Identifier)* ';'       #listStmt
-    |   expression ';'                                  #exprStmt
-    |   If '('expression')' statement (Else statement)? #condStmt
-    |   While '('expression?')' statement               #whileStmt
-    |   For '('forInit';'expression?';'expression?')' statement #forStmt
-    |   Return expression? ';'                          #retStmt
-    |   Break ';'                                       #breakStmt
-    |   Continue ';'                                    #continStmt
-    |   suite                                           #blockStmt
-    ;
-
-
-forInit
-    :   (expression(','expression)*)?       //maybe empty
-    ;
 
 LeftParen : '(';
 RightParen : ')';

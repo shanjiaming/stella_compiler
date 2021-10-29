@@ -2,12 +2,12 @@ package AST;
 
 import Util.position;
 
-public class returnStmtNode extends StmtNode {
-    public ExprNode value;
+public class ConstructDef extends ASTNode{
+    public SuiteStmt body;
 
-    public returnStmtNode(ExprNode value, position pos) {
+    public ConstructDef(position pos, SuiteStmt body) {
         super(pos);
-        this.value = value;
+        this.body = body;
     }
 
     @Override

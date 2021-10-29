@@ -1,6 +1,6 @@
 package Util;
 
-import Util.error.semanticError;
+import Util.MxError.SemanticError;
 
 import java.util.HashMap;
 
@@ -11,7 +11,7 @@ public class globalScope extends Scope {
     }
     public void addType(String name, Type t, position pos) {
         if (types.containsKey(name)) {
-            throw new semanticError("multiple definition of " + name, pos);
+            throw new SemanticError("multiple definition of " + name, pos);
         }
         types.put(name, t);
     }
@@ -19,6 +19,6 @@ public class globalScope extends Scope {
         if (types.containsKey(name)) {
             return types.get(name);
         }
-        throw new semanticError("no such type: " + name, pos);
+        throw new SemanticError("no such type: " + name, pos);
     }
 }

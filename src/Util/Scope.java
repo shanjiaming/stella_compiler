@@ -1,14 +1,14 @@
 package Util;
 
-import MIR.register;
-import Util.error.semanticError;
+//import MIR.register;
+import Util.MxError.SemanticError;
 
 import java.util.HashMap;
 
 public class  Scope {
 
     private HashMap<String, Type> members;
-    public HashMap<String, register> entities = new HashMap<>();
+//    public HashMap<String, register> entities = new HashMap<>();
     private Scope parentScope;
 
 
@@ -23,7 +23,7 @@ public class  Scope {
 
     public void defineVariable(String name, Type t, position pos) {
         if (members.containsKey(name)) {
-            throw new semanticError("Semantic Error: variable redefine", pos);
+            throw new SemanticError("Semantic Error: variable redefine", pos);
         }
         members.put(name, t);
     }
@@ -45,12 +45,12 @@ public class  Scope {
         }
         return null;
     }
-    public register getEntity(String name, boolean lookUpon) {
+    /*public register getEntity(String name, boolean lookUpon) {
         if (entities.containsKey(name)) {
             return entities.get(name);
         } else if (parentScope != null && lookUpon) {
             return parentScope.getEntity(name, true);
         }
         return null;
-    }
+    }*/
 }

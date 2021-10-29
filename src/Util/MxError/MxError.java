@@ -1,11 +1,11 @@
-package Util.error;
+package Util.MxError;
 import Util.position;
 
-abstract public class error extends RuntimeException {
+abstract public class MxError extends RuntimeException {
     private position pos;
     private String message;
 
-    public error(String msg, position pos) {
+    public MxError(String msg, position pos) {
         this.pos = pos;
         this.message = msg;
     }
