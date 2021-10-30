@@ -11,8 +11,6 @@ public class Program extends ASTNode{
 //    public ArrayList<VarDefStmt> varDefStmts = new ArrayList<>();
     public ArrayList<ProgramUnit> programUnits = new ArrayList<>();
 
-
-
     public Program(position pos) {
         super(pos);
     }
@@ -21,5 +19,6 @@ public class Program extends ASTNode{
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);
     }
+
 
 }

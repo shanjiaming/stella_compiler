@@ -8,7 +8,7 @@ public class VarExpr extends Expr {
 	public String name;
 
 	public VarExpr(position pos, String name) {
-		super(pos);
+		super(pos, true);
 		this.name = name;
 	}
 

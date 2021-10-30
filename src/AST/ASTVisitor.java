@@ -2,15 +2,13 @@ package AST;
 
 abstract public class ASTVisitor {
 
-    public void visit(FuncDef funcDefNode){}
+    public void visit(FuncDef funcDef){}
 
     public void visit(ClassDef classDef){}
 
-    public void visit(VarDefStmt varDefStmt){}
+    public void visit(Program program){}
 
-    public void visit(Program programNode){}
-
-    public void visit(SuiteStmt suiteStmtNode){}
+    public void visit(SuiteStmt suiteStmt){}
 
     public void visit(ConstructDef constructDef){}
 
@@ -55,4 +53,7 @@ abstract public class ASTVisitor {
     public void visit(NewClassExpr newClassExpr){}
 
     public void visit(MemberFuncCallExpr memberFuncCallExpr){}
+
+    public void visit(VarDefStmt varDefStmt) {
+    }
 }

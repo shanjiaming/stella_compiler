@@ -1,19 +1,25 @@
 package Util;
 
-//import MIR.register;
+import AST.ForStmt;
 import Util.MxError.SemanticError;
 
 import java.util.HashMap;
 
 public class  Scope {
 
-    private final HashMap<String, Type> members = new HashMap<>();
-//    public HashMap<String, register> entities = new HashMap<>();
-    private final Scope parentScope;
+    private ForStmt forStmt = null;
 
+    private final HashMap<String, Type> members = new HashMap<>();
+
+    private final Scope parentScope;
 
     public Scope(Scope parentScope) {
         this.parentScope = parentScope;
+    }
+
+    public Scope(Scope parentScope, ForStmt forStmt) {
+        this.parentScope = parentScope;
+        this.forStmt = forStmt;
     }
 
     public Scope parentScope() {
@@ -25,6 +31,12 @@ public class  Scope {
             throw new SemanticError("Semantic Error: variable redefine", pos);
         }
         members.put(name, t);
+    }
+
+    public ForStmt getForStmt(){
+        if (forStmt != null) return forStmt;
+        if (parentScope != null) return parentScope.getForStmt();
+        return null;
     }
 
     public boolean containsVariable(String name, boolean lookUpon) {
@@ -44,12 +56,4 @@ public class  Scope {
         }
         return null;
     }
-    /*public register getEntity(String name, boolean lookUpon) {
-        if (entities.containsKey(name)) {
-            return entities.get(name);
-        } else if (parentScope != null && lookUpon) {
-            return parentScope.getEntity(name, true);
-        }
-        return null;
-    }*/
 }

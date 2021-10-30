@@ -3,7 +3,6 @@ package Util;
 import AST.ClassDef;
 import AST.FuncDef;
 import Parser.MxParser;
-import Util.MxError.MxError;
 import Util.MxError.SemanticError;
 
 import java.util.Arrays;
@@ -25,12 +24,32 @@ public class Type {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Type type = (Type) o;
+        if ("null".equals(type.typeName)) {
+            if ((typeName == "int" || typeName == "bool") && dim == 0) return false;
+            return true;
+        }
+        if ("null".equals(typeName)) {
+            if ((type.typeName == "int" || type.typeName == "bool") && type.dim == 0) return false;
+            return true;
+        }
         return dim == type.dim && Objects.equals(typeName, type.typeName);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(typeName, dim);
+    }
+
+    @Override
+    public String toString() {
+        return "Type{" +
+                "typeName='" + typeName + '\'' +
+                ", dim=" + dim +
+                '}';
+    }
+
+    public static boolean isSameType(Type t1, Type t2){
+        return (t1 != null) && t1.equals(t2);
     }
 
     public static Type visit(MxParser.TypeContext ctx) {
@@ -46,7 +65,7 @@ public class Type {
     }
 
     public static Type reduceDim(Type type) {
-        return new Type(type.typeName, type.dim-1);
+        return new Type(type.typeName, type.dim - 1);
     }
 
     public static final Type INT_TYPE = new Type("int", 0);
@@ -55,30 +74,44 @@ public class Type {
 
     private static final HashSet<Type> basicTypes = new HashSet<>(Arrays.asList(INT_TYPE, BOOL_TYPE, STRING_TYPE));
     private static final HashMap<Type, ClassDef> classTypes = new HashMap<>();
-    private static final HashMap<Type, FuncDef> funcTypes = new HashMap<>();
+    private static final HashMap<String, FuncDef> funcTypes = new HashMap<>();
 
-    public static void addClassType(ClassDef classDef, position pos){
+    public static void addClassType(ClassDef classDef, position pos) {
         Type classType = stringToType(classDef.name);
-        if (hasClassTypes(classType) | hasFuncTypes(classType)) throw new SemanticError("add class type already exists", pos);
+        if (hasClassType(classType) | hasFuncType(classType.typeName))
+            throw new SemanticError("add class type already exists", pos);
         classTypes.put(classType, classDef);
     }
-    public static void addFuncType(FuncDef funcDef, position pos){
-        Type funcType = stringToType(funcDef.name);
-        if (hasClassTypes(funcType) | hasFuncTypes(funcType)) throw new SemanticError("add func type already exists", pos);
-        funcTypes.put(funcType, funcDef);
+
+    public static void addFuncType(FuncDef funcDef, position pos) {
+        if (hasClassType(stringToType(funcDef.name)) | hasFuncType(funcDef.name))
+            throw new SemanticError("add func type already exists", pos);
+        funcTypes.put(funcDef.name, funcDef);
     }
 
-    public static boolean hasBasicTypes(Type type){
+    public static boolean hasBasicType(Type type) {
         return basicTypes.contains(type);
     }
-    public static boolean hasClassTypes(Type type){
+
+    public static boolean hasClassType(Type type) {
         return classTypes.containsKey(type);
     }
-    public static boolean hasFuncTypes(Type type){
+
+    public static boolean hasFuncType(String type) {
         return funcTypes.containsKey(type);
     }
-    public static boolean hasTypes(Type type){
-        return hasBasicTypes(type) || hasClassTypes(type);
+
+    public static boolean hasType(Type type) {
+        return hasBasicType(type) || hasClassType(type);
     }
+
+    public static ClassDef getClassDef(Type type) {
+        return classTypes.get(type);
+    }
+
+    public static FuncDef getFuncDef(Type type) {
+        return funcTypes.get(type);
+    }
+
 
 }

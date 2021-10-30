@@ -5,7 +5,7 @@ import Util.Type;
 
 import java.util.ArrayList;
 
-public class VarDefStmt extends Stmt implements ProgramUnit {
+public class VarDefStmt extends Stmt implements ProgramUnit{
     public Type varType;
     public ArrayList<String> names = new ArrayList<>();
     public ArrayList<Expr> init = new ArrayList<>();
@@ -17,4 +17,6 @@ public class VarDefStmt extends Stmt implements ProgramUnit {
 
     @Override
     public void accept(ASTVisitor visitor) {visitor.visit(this);}
+
+
 }

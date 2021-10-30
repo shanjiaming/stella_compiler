@@ -2,7 +2,6 @@ package Frontend;
 
 import AST.*;
 import Parser.MxBaseVisitor;
-import Util.MxError.ASTBuilderError;
 import Util.MxError.SemanticError;
 import Util.Type;
 import Util.position;
@@ -41,15 +40,25 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ClassDef classDef = new ClassDef(pos, ctx.Identifier().getText());
         ctx.constructDef().forEach(constructDef -> {
             if (!classDef.name.equals(constructDef.Identifier().getText())) {
-                throw new ASTBuilderError("Constructor name not equal with class name", pos);
+                throw new SemanticError("Constructor name not equal with class name", pos);
             }
             if (classDef.constructDef != null) throw new SemanticError("more than one constructor", pos);
             classDef.constructDef = (ConstructDef) visit(constructDef);
         });
         if (classDef.constructDef == null)
             classDef.constructDef = new ConstructDef(pos, new SuiteStmt(pos));
-        ctx.funcDef().forEach(funcDef -> classDef.funcDefs.add((FuncDef) visit(funcDef)));
-        ctx.varDef().forEach(varDef -> classDef.varDefStmts.add((VarDefStmt) visit(varDef)));
+        ctx.funcDef().forEach(funcDef -> {
+            FuncDef funcDef1 = (FuncDef) visit(funcDef);
+            Type funcType = Type.stringToType(funcDef1.name);
+            if (classDef.funcDefs.containsKey(funcDef1.name))
+                throw new SemanticError("class has two same name function", pos);
+            classDef.funcDefs.put(funcDef1.name, funcDef1);
+        });
+        ctx.varDef().forEach(varDef -> varDef.varSingleDef().forEach(varSingleDefContext -> {
+            String varName = varSingleDefContext.Identifier().getText();
+            if (classDef.members.containsKey(varName)) throw new SemanticError("class has two same name member", pos);
+            classDef.members.put(varName, Type.visit(varDef.type()));
+        }));
         Type.addClassType(classDef, pos);
         return classDef;
     }
@@ -137,7 +146,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitNewInvalidArray(NewInvalidArrayContext ctx) {
-        throw new ASTBuilderError("invalid new expression.", new position(ctx));
+        throw new SemanticError("invalid new expression.", new position(ctx));
     }
 
     @Override
@@ -197,14 +206,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitMemberExpr(MemberExprContext ctx) {
         ExprListContext arglists = ctx.exprList();
-        Expr expr;
         if (arglists == null) {
-            expr = new VarExpr(new position(ctx), ctx.Identifier().getText());
-            return new MemberExpr(new position(ctx), (Expr) visit(ctx.expr()), expr);
+            return new MemberExpr(new position(ctx), (Expr) visit(ctx.expr()), new VarExpr(new position(ctx), ctx.Identifier().getText()));
         } else {
-            expr = new FuncCallExpr(new position(ctx), ctx.Identifier().getText());
+            Expr expr = new FuncCallExpr(new position(ctx), ctx.Identifier().getText());
             arglists.expr().forEach(arg -> ((FuncCallExpr) expr).argList.add((Expr) visit(arg)));
-            return new MemberFuncCallExpr(new position(ctx), (Expr) visit(ctx.expr()), expr);
+            return new MemberFuncCallExpr(new position(ctx), (Expr) visit(ctx.expr()), (FuncCallExpr) expr);
         }
     }
 
