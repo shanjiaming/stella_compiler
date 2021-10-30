@@ -4,8 +4,7 @@ import Util.position;
 
 import java.util.ArrayList;
 
-public class ClassDef extends ASTNode{
-    public SuiteStmt body;
+public class ClassDef extends ASTNode implements ProgramUnit{
     public String name;
     public ArrayList<ConstructDef> constructDefs = new ArrayList<>();
     public ArrayList<FuncDef> funcDefs = new ArrayList<>();

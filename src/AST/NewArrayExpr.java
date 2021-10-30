@@ -1,17 +1,15 @@
 package AST;
 
 import Util.position;
+import Util.Type;
 
 import java.util.ArrayList;
 
 public class NewArrayExpr extends Expr {
-	public Type type;
 	public ArrayList<Expr> dims = new ArrayList<>();
-	public int totalDim;
 
-	public NewArrayExpr(position pos, Type type) {
-		super(pos);
-		this.type = type;
+	public NewArrayExpr(position pos) {
+		super(pos,true);
 	}
 
 	@Override

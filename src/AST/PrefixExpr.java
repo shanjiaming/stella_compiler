@@ -3,11 +3,11 @@ package AST;
 import Util.position;
 
 public class PrefixExpr extends Expr{
-    Expr lhs;
-    String op;
+    public Expr lhs;
+    public String op;
 
     public PrefixExpr(position pos, Expr lhs, String op) {
-        super(pos);
+        super(pos,true);
         this.lhs = lhs;
         this.op = op;
     }

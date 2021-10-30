@@ -2,14 +2,13 @@ package AST;
 
 import Util.position;
 
-public class UnaryExpr extends Expr{
-    public Expr lhs;
-    public String op;
+public class MemberFuncCallExpr extends Expr{
+    public Expr lhs, rhs;
 
-    public UnaryExpr(position pos, Expr lhs, String op) {
+    public MemberFuncCallExpr(position pos, Expr lhs, Expr rhs) {
         super(pos,false);
         this.lhs = lhs;
-        this.op = op;
+        this.rhs = rhs;
     }
 
     @Override

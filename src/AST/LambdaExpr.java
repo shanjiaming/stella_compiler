@@ -1,5 +1,6 @@
 package AST;
 
+import Util.Type;
 import Util.position;
 
 import java.util.AbstractMap;
@@ -12,7 +13,7 @@ public class LambdaExpr extends Expr {
 	public ArrayList<Expr> argList = new ArrayList<>();
 
 	public LambdaExpr(position pos, SuiteStmt body) {
-		super(pos);
+		super(pos, false);
 		this.body = body;
 	}
 

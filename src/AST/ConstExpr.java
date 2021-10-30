@@ -1,14 +1,15 @@
 package AST;
 
+import Util.Type;
 import Util.position;
 
 public class ConstExpr extends Expr {
-	public String value, type;
+	public String value;
 
 	public ConstExpr(position pos, String value, String type) {
-		super(pos);
+		super(pos,false);
 		this.value = value;
-		this.type = type;
+		super.type = Type.StringToType(type);
 	}
 
 	@Override

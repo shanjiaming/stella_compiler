@@ -21,12 +21,17 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Scanner;
 
 
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        String name = "src/testcases/sema/basic-package/basic-1.mx";
+        Scanner scanner = new Scanner(System.in);
+        String testcaseName;
+//        testcaseName = scanner.nextLine();
+        testcaseName = "sema/function-package/function-4.mx";
+        String name = "src/testcases/" + testcaseName;
         InputStream input = new FileInputStream(name);
 
         try {

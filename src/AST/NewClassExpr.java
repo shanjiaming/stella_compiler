@@ -1,13 +1,13 @@
 package AST;
 
 import Util.position;
+import Util.Type;
 
 public class NewClassExpr extends Expr {
-	public Type type;
 
 	public NewClassExpr(position pos, Type type) {
-		super(pos);
-		this.type = type;
+		super(pos,true);
+		super.type = type;
 	}
 
 	@Override

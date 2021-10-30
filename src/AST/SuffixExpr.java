@@ -3,11 +3,11 @@ package AST;
 import Util.position;
 
 public class SuffixExpr extends Expr{
-    Expr lhs;
-    String op;
+    public Expr lhs;
+    public String op;
 
     public SuffixExpr(position pos, Expr lhs, String op) {
-        super(pos);
+        super(pos,false);
         this.lhs = lhs;
         this.op = op;
     }

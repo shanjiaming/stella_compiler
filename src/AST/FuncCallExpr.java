@@ -1,7 +1,5 @@
 package AST;
 
-//import LLVMIR.Operand.entity;
-//import LLVMIR.function;
 import Util.position;
 
 import java.util.ArrayList;
@@ -9,11 +7,9 @@ import java.util.ArrayList;
 public class FuncCallExpr extends Expr {
 	public String name;
 	public ArrayList<Expr> argList = new ArrayList<>();
-//	public entity thisEntity = null;
-//	public function func;
 
 	public FuncCallExpr(position pos, String name) {
-		super(pos);
+		super(pos,false);
 		this.name = name;
 	}
 

@@ -11,8 +11,6 @@ public interface ASTVisitor {
 
     void visit(SuiteStmt suiteStmtNode);
 
-    void visit(Type type);
-
     void visit(ConstructDef constructDef);
 
     void visit(BinaryExpr binaryExpr);
@@ -22,8 +20,6 @@ public interface ASTVisitor {
     void visit(PrefixExpr prefixExpr);
 
     void visit(SuffixExpr suffixExpr);
-
-    void visit(CompareExpr compareExpr);
 
     void visit(IfStmt ifStmt);
 
@@ -56,4 +52,6 @@ public interface ASTVisitor {
     void visit(AssignExpr assignExpr);
 
     void visit(NewClassExpr newClassExpr);
+
+    void visit(MemberFuncCallExpr memberFuncCallExpr);
 }

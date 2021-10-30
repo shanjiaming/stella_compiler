@@ -1,6 +1,8 @@
 grammar Mx;
 
-program: (';'|varDef';'|classDef|funcDef)* EOF;
+program: programUnit* EOF;
+
+programUnit : ';'|varDef';'|classDef|funcDef;
 
 Int:'int';
 Bool:'bool';

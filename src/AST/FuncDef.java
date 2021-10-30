@@ -1,10 +1,11 @@
 package AST;
 
 import Util.position;
+import Util.Type;
 
 import java.util.ArrayList;
 
-public class FuncDef extends ASTNode{
+public class FuncDef extends ASTNode implements ProgramUnit{
     public Type returnType;
     public ArrayList<Type> parameterTypes = new ArrayList<>();
     public ArrayList<String> parameterIdentifiers = new ArrayList<>();

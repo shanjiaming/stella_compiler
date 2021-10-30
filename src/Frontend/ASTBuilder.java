@@ -3,6 +3,7 @@ package Frontend;
 import AST.*;
 import Parser.MxBaseVisitor;
 import Util.MxError.ASTBuilderError;
+import Util.Type;
 import Util.globalScope;
 import Util.position;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -19,9 +20,22 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitProgram(ProgramContext ctx) {
         Program program = new Program(new position(ctx));
-        ctx.classDef().forEach(classDef -> program.classDefs.add((ClassDef) visit(classDef)));
-        ctx.funcDef().forEach(funcDef -> program.funcDefs.add((FuncDef) visit(funcDef)));
-        ctx.varDef().forEach(varDef -> program.varDefStmts.add((VarDefStmt) visit(varDef)));
+        ctx.programUnit().forEach(programUnit -> {
+            var classDef = programUnit.classDef();
+            if (classDef != null){
+                program.programUnits.add((ClassDef)visit(classDef));
+                return;
+            }
+            var funcDef = programUnit.funcDef();
+            if (funcDef != null){
+                program.programUnits.add((FuncDef)visit(funcDef));
+                return;
+            }
+            var varDef = programUnit.varDef();
+            if (varDef != null){
+                program.programUnits.add((VarDefStmt)visit(varDef));
+            }
+        });
         return program;
     }
 
@@ -35,6 +49,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             }
             classDef.constructDefs.add((ConstructDef) visit(constructDef));
         });
+        if (classDef.constructDefs.isEmpty())
+            classDef.constructDefs.add(new ConstructDef(new position(ctx), new SuiteStmt(new position(ctx))));
         ctx.funcDef().forEach(funcDef -> classDef.funcDefs.add((FuncDef) visit(funcDef)));
         ctx.varDef().forEach(varDef -> classDef.varDefStmts.add((VarDefStmt) visit(varDef)));
         return classDef;
@@ -47,9 +63,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                 new position(ctx),
                 ctx.Identifier().getText(),
                 (SuiteStmt) visit(ctx.suite()),
-                (ctx.Void() == null) ? null : (Type) visit(ctx.type())
+                (ctx.Void() == null) ? Type.visit(ctx.type() ) : null
         );
-        ctx.parameterList().type().forEach(type -> funcDef.parameterTypes.add((Type) visit(type)));
+        ctx.parameterList().type().forEach(type -> funcDef.parameterTypes.add(Type.visit(type)));
         ctx.parameterList().Identifier().forEach(identifier -> funcDef.parameterIdentifiers.add(identifier.getText()));
         return funcDef;
     }
@@ -57,7 +73,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitIfStmt(IfStmtContext ctx) {
-        return new IfStmt(new position(ctx), (Expr) visit(ctx.expr()), (Stmt) visit(ctx.stmt(0)), (Stmt) visit(ctx.stmt(1)));//HACK shoubld use statement without {} here
+        return new IfStmt(new position(ctx), (Expr) visit(ctx.expr()), (Stmt) visit(ctx.stmt(0)), ctx.stmt(1) == null ? null : (Stmt) visit(ctx.stmt(1)));//HACK shoubld use statement without {} here
     }
 
 
@@ -74,11 +90,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
-    public ASTNode visitType(TypeContext ctx) {
-        return new Type(new position(ctx), ctx.baseType().getText(), ctx.LeftBracket().size());
-    }
-
-    @Override
     public ASTNode visitConstValue(ConstValueContext ctx) {
         return new ConstExpr(
                 new position(ctx),
@@ -92,7 +103,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitVarDef(VarDefContext ctx) {
-        VarDefStmt varDefStmt = new VarDefStmt(new position(ctx), (Type) visit(ctx.type()));
+        VarDefStmt varDefStmt = new VarDefStmt(new position(ctx), Type.visit(ctx.type()));
         ctx.varSingleDef().forEach(varDef -> {
             varDefStmt.names.add(varDef.Identifier().getText());
             varDefStmt.init.add(varDef.expr() == null ? null : (Expr) visit(varDef.expr()));
@@ -131,15 +142,16 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitNewArray(NewArrayContext ctx) {
-        NewArrayExpr newArrayExpr = new NewArrayExpr(new position(ctx), (Type) visit(ctx.baseType()));
+        NewArrayExpr newArrayExpr = new NewArrayExpr(new position(ctx));
         ctx.expr().forEach(exp -> newArrayExpr.dims.add((Expr) visit(exp)));
-        newArrayExpr.totalDim = ctx.LeftBracket().size();
+        newArrayExpr.type = Type.visit(ctx.baseType());
+        newArrayExpr.type.dim = ctx.LeftBracket().size();
         return newArrayExpr;
     }
 
     @Override
     public ASTNode visitNewClass(NewClassContext ctx) {
-        return new NewClassExpr(new position(ctx), (Type) visit(ctx.baseType()));
+        return new NewClassExpr(new position(ctx), Type.visit(ctx.baseType()));
     }
 
 
@@ -147,7 +159,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitLambda(LambdaContext ctx) {
         LambdaExpr lambdaExpr = new LambdaExpr(new position(ctx), (SuiteStmt) visit(ctx.suite()));
         ctx.exprList().expr().forEach(expr -> lambdaExpr.argList.add((Expr) visit(expr)));
-        ctx.parameterList().type().forEach(type -> lambdaExpr.parameterTypes.add((Type) visit(type)));
+        ctx.parameterList().type().forEach(type -> lambdaExpr.parameterTypes.add(Type.visit(type)));
         ctx.parameterList().Identifier().forEach(identifier -> lambdaExpr.parameterIdentifiers.add(identifier.getText()));
         return lambdaExpr;
     }
@@ -187,12 +199,13 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ExprListContext arglists = ctx.exprList();
         Expr expr;
         if (arglists == null) {
-            expr = new VarExpr(new position(ctx),ctx.Identifier().getText());
-        }else {
-            expr = new FuncCallExpr(new position(ctx),ctx.Identifier().getText());
-            arglists.expr().forEach(arg->((FuncCallExpr)expr).argList.add((Expr) visit(arg)));
+            expr = new VarExpr(new position(ctx), ctx.Identifier().getText());
+            return new MemberExpr(new position(ctx), (Expr) visit(ctx.expr()), expr);
+        } else {
+            expr = new FuncCallExpr(new position(ctx), ctx.Identifier().getText());
+            arglists.expr().forEach(arg -> ((FuncCallExpr) expr).argList.add((Expr) visit(arg)));
+            return new MemberFuncCallExpr(new position(ctx), (Expr) visit(ctx.expr()), expr);
         }
-        return new MemberExpr(new position(ctx), (Expr)visit(ctx.expr()),expr);
     }
 
     @Override
@@ -208,7 +221,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
 
-
     @Override
     public ASTNode visitVarDefStmt(VarDefStmtContext ctx) {
         return visit(ctx.varDef());
@@ -216,7 +228,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitAssignExpr(AssignExprContext ctx) {
-        return new AssignExpr(new position(ctx), (Expr)visit(ctx.expr(0)), (Expr)visit(ctx.expr(1)));
+        return new AssignExpr(new position(ctx), (Expr) visit(ctx.expr(0)), (Expr) visit(ctx.expr(1)));
     }
 
     @Override

@@ -3,10 +3,10 @@ package AST;
 import Util.position;
 
 public class IndexExpr extends Expr{
-    Expr lhs, rhs;
+    public Expr lhs, rhs;
 
     public IndexExpr(position pos, Expr lhs, Expr rhs) {
-        super(pos);
+        super(pos, true);
         this.lhs = lhs;
         this.rhs = rhs;
     }

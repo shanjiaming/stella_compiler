@@ -3,10 +3,10 @@ package AST;
 import Util.position;
 
 public class MemberExpr extends Expr{
-    Expr lhs, rhs;
+    public Expr lhs, rhs;
 
     public MemberExpr(position pos, Expr lhs, Expr rhs) {
-        super(pos);
+        super(pos,true);
         this.lhs = lhs;
         this.rhs = rhs;
     }
