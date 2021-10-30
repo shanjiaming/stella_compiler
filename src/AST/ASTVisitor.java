@@ -1,57 +1,58 @@
 package AST;
 
-public interface ASTVisitor {
-    void visit(FuncDef funcDefNode);
+abstract public class ASTVisitor {
 
-    void visit(ClassDef classDef);
+    public void visit(FuncDef funcDefNode){}
 
-    void visit(VarDefStmt varDefStmt);
+    public void visit(ClassDef classDef){}
 
-    void visit(Program programNode);
+    public void visit(VarDefStmt varDefStmt){}
 
-    void visit(SuiteStmt suiteStmtNode);
+    public void visit(Program programNode){}
 
-    void visit(ConstructDef constructDef);
+    public void visit(SuiteStmt suiteStmtNode){}
 
-    void visit(BinaryExpr binaryExpr);
+    public void visit(ConstructDef constructDef){}
 
-    void visit(UnaryExpr unaryExpr);
+    public void visit(BinaryExpr binaryExpr){}
 
-    void visit(PrefixExpr prefixExpr);
+    public void visit(UnaryExpr unaryExpr){}
 
-    void visit(SuffixExpr suffixExpr);
+    public void visit(PrefixExpr prefixExpr){}
 
-    void visit(IfStmt ifStmt);
+    public void visit(SuffixExpr suffixExpr){}
 
-    void visit(ThisExpr thisExpr);
+    public void visit(IfStmt ifStmt){}
 
-    void visit(NewArrayExpr newArrayExpr);
+    public void visit(ThisExpr thisExpr){}
 
-    void visit(ForStmt forStmt);
+    public void visit(NewArrayExpr newArrayExpr){}
 
-    void visit(ContinueStmt continueStmt);
+    public void visit(ForStmt forStmt){}
 
-    void visit(BreakStmt breakStmt);
+    public void visit(ContinueStmt continueStmt){}
 
-    void visit(ReturnStmt returnStmt);
+    public void visit(BreakStmt breakStmt){}
 
-    void visit(IndexExpr indexExpr);
+    public void visit(ReturnStmt returnStmt){}
 
-    void visit(MemberExpr memberExpr);
+    public void visit(IndexExpr indexExpr){}
 
-    void visit(FuncCallExpr funcCallExpr);
+    public void visit(MemberExpr memberExpr){}
 
-    void visit(VarExpr varExpr);
+    public void visit(FuncCallExpr funcCallExpr){}
 
-    void visit(LambdaExpr lambdaExpr);
+    public void visit(VarExpr varExpr){}
 
-    void visit(ConstExpr constExpr);
+    public void visit(LambdaExpr lambdaExpr){}
 
-    void visit(EmptyStmt emptyStmt);
+    public void visit(ConstExpr constExpr){}
 
-    void visit(AssignExpr assignExpr);
+    public void visit(EmptyStmt emptyStmt){}
 
-    void visit(NewClassExpr newClassExpr);
+    public void visit(AssignExpr assignExpr){}
 
-    void visit(MemberFuncCallExpr memberFuncCallExpr);
+    public void visit(NewClassExpr newClassExpr){}
+
+    public void visit(MemberFuncCallExpr memberFuncCallExpr){}
 }

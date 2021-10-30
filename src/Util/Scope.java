@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class  Scope {
 
-    private HashMap<String, Type> members = new HashMap<>();
+    private final HashMap<String, Type> members = new HashMap<>();
 //    public HashMap<String, register> entities = new HashMap<>();
     private final Scope parentScope;
 

@@ -3,37 +3,32 @@ package Frontend;
 import AST.*;
 import Parser.MxBaseVisitor;
 import Util.MxError.ASTBuilderError;
+import Util.MxError.SemanticError;
 import Util.Type;
-import Util.globalScope;
 import Util.position;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import Parser.MxParser.*;
 
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
-    public globalScope gScope;
-
-    public ASTBuilder(globalScope gScope) {
-        this.gScope = gScope;
-    }
 
     @Override
     public ASTNode visitProgram(ProgramContext ctx) {
         Program program = new Program(new position(ctx));
         ctx.programUnit().forEach(programUnit -> {
             var classDef = programUnit.classDef();
-            if (classDef != null){
-                program.programUnits.add((ClassDef)visit(classDef));
+            if (classDef != null) {
+                program.programUnits.add((ClassDef) visit(classDef));
                 return;
             }
             var funcDef = programUnit.funcDef();
-            if (funcDef != null){
-                program.programUnits.add((FuncDef)visit(funcDef));
+            if (funcDef != null) {
+                program.programUnits.add((FuncDef) visit(funcDef));
                 return;
             }
             var varDef = programUnit.varDef();
-            if (varDef != null){
-                program.programUnits.add((VarDefStmt)visit(varDef));
+            if (varDef != null) {
+                program.programUnits.add((VarDefStmt) visit(varDef));
             }
         });
         return program;
@@ -42,31 +37,36 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitClassDef(ClassDefContext ctx) {
-        ClassDef classDef = new ClassDef(new position(ctx), ctx.Identifier().getText());
+        position pos = new position(ctx);
+        ClassDef classDef = new ClassDef(pos, ctx.Identifier().getText());
         ctx.constructDef().forEach(constructDef -> {
             if (!classDef.name.equals(constructDef.Identifier().getText())) {
-                throw new ASTBuilderError("Constructor name not equal with class name", new position(ctx));
+                throw new ASTBuilderError("Constructor name not equal with class name", pos);
             }
-            classDef.constructDefs.add((ConstructDef) visit(constructDef));
+            if (classDef.constructDef != null) throw new SemanticError("more than one constructor", pos);
+            classDef.constructDef = (ConstructDef) visit(constructDef);
         });
-        if (classDef.constructDefs.isEmpty())
-            classDef.constructDefs.add(new ConstructDef(new position(ctx), new SuiteStmt(new position(ctx))));
+        if (classDef.constructDef == null)
+            classDef.constructDef = new ConstructDef(pos, new SuiteStmt(pos));
         ctx.funcDef().forEach(funcDef -> classDef.funcDefs.add((FuncDef) visit(funcDef)));
         ctx.varDef().forEach(varDef -> classDef.varDefStmts.add((VarDefStmt) visit(varDef)));
+        Type.addClassType(classDef, pos);
         return classDef;
     }
 
 
     @Override
     public ASTNode visitFuncDef(FuncDefContext ctx) {
+        position pos = new position(ctx);
         FuncDef funcDef = new FuncDef(
-                new position(ctx),
+                pos,
                 ctx.Identifier().getText(),
                 (SuiteStmt) visit(ctx.suite()),
-                (ctx.Void() == null) ? Type.visit(ctx.type() ) : null
+                (ctx.Void() == null) ? Type.visit(ctx.type()) : null
         );
         ctx.parameterList().type().forEach(type -> funcDef.parameterTypes.add(Type.visit(type)));
         ctx.parameterList().Identifier().forEach(identifier -> funcDef.parameterIdentifiers.add(identifier.getText()));
+        Type.addFuncType(funcDef, pos);
         return funcDef;
     }
 

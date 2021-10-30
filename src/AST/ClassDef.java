@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class ClassDef extends ASTNode implements ProgramUnit{
     public String name;
-    public ArrayList<ConstructDef> constructDefs = new ArrayList<>();
+    public ConstructDef constructDef;
     public ArrayList<FuncDef> funcDefs = new ArrayList<>();
     public ArrayList<VarDefStmt> varDefStmts = new ArrayList<>();
     public ClassDef(position pos, String name) {
