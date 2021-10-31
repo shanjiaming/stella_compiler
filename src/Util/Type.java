@@ -25,12 +25,10 @@ public class Type {
         if (o == null || getClass() != o.getClass()) return false;
         Type type = (Type) o;
         if ("null".equals(type.typeName)) {
-            if ((typeName == "int" || typeName == "bool") && dim == 0) return false;
-            return true;
+            return (!typeName.equals("int") && !typeName.equals("bool") && !typeName.equals("string")) || dim != 0;
         }
         if ("null".equals(typeName)) {
-            if ((type.typeName == "int" || type.typeName == "bool") && type.dim == 0) return false;
-            return true;
+            return (!type.typeName.equals("int") && !type.typeName.equals("bool") && !type.typeName.equals("string")) || type.dim != 0;
         }
         return dim == type.dim && Objects.equals(typeName, type.typeName);
     }
@@ -48,7 +46,7 @@ public class Type {
                 '}';
     }
 
-    public static boolean isSameType(Type t1, Type t2){
+    public static boolean isSameType(Type t1, Type t2) {
         return (t1 != null) && t1.equals(t2);
     }
 
@@ -72,8 +70,18 @@ public class Type {
     public static final Type BOOL_TYPE = new Type("bool", 0);
     public static final Type STRING_TYPE = new Type("string", 0);
 
-    private static final HashSet<Type> basicTypes = new HashSet<>(Arrays.asList(INT_TYPE, BOOL_TYPE, STRING_TYPE));
-    private static final HashMap<Type, ClassDef> classTypes = new HashMap<>();
+    private static final HashSet<Type> basicTypes = new HashSet<>(Arrays.asList(INT_TYPE, BOOL_TYPE));
+    private static final HashMap<Type, ClassDef> classTypes = new HashMap<>() {{
+        ClassDef STRING_CLASS = new ClassDef(position.INLINE_POS, "string");
+        STRING_CLASS.funcDefs = new HashMap<>() {{
+            put("length", new FuncDef(position.INLINE_POS, "length", Type.INT_TYPE));
+            put("substring", new FuncDef(position.INLINE_POS, "substring", Type.STRING_TYPE, new Type[]{Type.INT_TYPE, Type.INT_TYPE}, new String[]{"left", "right"}));
+            put("parseInt", new FuncDef(position.INLINE_POS, "parseInt", Type.INT_TYPE));
+            put("ord", new FuncDef(position.INLINE_POS, "ord", Type.INT_TYPE, new Type[]{Type.INT_TYPE}, new String[]{"pos"}));
+        }};
+        put(STRING_TYPE, STRING_CLASS);
+    }};
+    //warning use {{}} to initialize map
     private static final HashMap<String, FuncDef> funcTypes = new HashMap<>();
 
     public static void addClassType(ClassDef classDef, position pos) {
@@ -109,7 +117,7 @@ public class Type {
         return classTypes.get(type);
     }
 
-    public static FuncDef getFuncDef(Type type) {
+    public static FuncDef getFuncDef(String type) {
         return funcTypes.get(type);
     }
 

@@ -11,6 +11,6 @@ abstract public class MxError extends RuntimeException {
     }
 
     public String toString() {
-        return message + ": " + pos.toString();
+        return message + ": " + (pos == null ? "" :pos.toString());//FIXME
     }
 }

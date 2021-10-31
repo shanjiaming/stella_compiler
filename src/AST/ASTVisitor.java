@@ -56,4 +56,7 @@ abstract public class ASTVisitor {
 
     public void visit(VarDefStmt varDefStmt) {
     }
+
+    public void visit(ExprStmt exprStmt) {
+    }
 }

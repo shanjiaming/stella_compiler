@@ -33,4 +33,6 @@ public class position {
     }
 
     public String toString() { return row + "," + column; }
+
+    public static position INLINE_POS = new position(-1,-1);
 }

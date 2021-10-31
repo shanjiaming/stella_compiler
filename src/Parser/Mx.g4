@@ -45,9 +45,9 @@ constructDef:Identifier '('')' suite;
 
 exprList: '('(expr(','expr)*)?')';
 value: Identifier | constValue | newItem | Identifier exprList | lambda | This;
-newItem:  baseType ('[' expr ']')* ('['']')+ ('[' expr ']')+          #newInvalidArray
-         	| baseType ('[' expr ']')+ ('[' ']')*                     #newArray
-         	| baseType ('('')')?                                      #newClass;
+newItem:  New baseType ('[' expr ']')* ('['']')+ ('[' expr ']')+          #newInvalidArray
+         	| New baseType ('[' expr ']')+ ('[' ']')*                     #newArray
+         	| New baseType ('('')')?                                      #newClass;
 
 lambda:'[&]'parameterList'->'suite exprList;
 
@@ -55,7 +55,7 @@ expr
     :   value                                        #valueExpr
     |   '('expr')'                                   #parenExpr
     |   expr op=('++'|'--')                          #suffixExpr
-    |   <assoc=right> New newItem                    #newArrayExpr
+    |   <assoc=right> newItem                    #newArrayExpr
     |   expr '['expr']'                              #indexExpr
     |   expr '.' Identifier exprList?                #memberExpr
     |   <assoc=right> op=('++'|'--') expr            #prefixExpr

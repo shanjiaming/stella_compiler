@@ -223,7 +223,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitSuite(SuiteContext ctx) {
         SuiteStmt suiteStmt = new SuiteStmt(new position(ctx));
-        ctx.stmt().forEach(stmt -> suiteStmt.stmts.add((Stmt) visit(stmt)));
+        ctx.stmt().forEach(stmt -> {
+            suiteStmt.stmts.add((Stmt) visit(stmt));
+        });
         return suiteStmt;
     }
 
@@ -231,6 +233,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitVarDefStmt(VarDefStmtContext ctx) {
         return visit(ctx.varDef());
+    }
+
+    @Override
+    public ASTNode visitExprStmt(ExprStmtContext ctx) {
+        return new ExprStmt(new position(ctx),(Expr)visit(ctx.expr()));
     }
 
     @Override

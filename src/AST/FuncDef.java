@@ -4,6 +4,7 @@ import Util.position;
 import Util.Type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FuncDef extends ASTNode implements ProgramUnit{
     public Type returnType;
@@ -19,6 +20,19 @@ public class FuncDef extends ASTNode implements ProgramUnit{
         this.body = body;
         this.returnType = returnType;
     }
+    public FuncDef(position pos, String name, Type returnType) {
+        super(pos);
+        this.name = name;
+        this.returnType = returnType;
+    }
+    public FuncDef(position pos, String name, Type returnType, Type[] parameterTypes, String[] parameterIdentifiers) {
+        super(pos);
+        this.name = name;
+        this.returnType = returnType;
+        this.parameterTypes = new ArrayList<>(Arrays.asList(parameterTypes));
+        this.parameterIdentifiers = new ArrayList<>(Arrays.asList(parameterIdentifiers));
+    }
+
 
     @Override
     public void accept(ASTVisitor visitor) {

@@ -29,8 +29,8 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         String testcaseName;
-//        testcaseName = scanner.nextLine();
-        testcaseName = "sema/function-package/function-4.mx";
+        testcaseName = scanner.nextLine();
+//        testcaseName = "sema/array-package/array-2.mx";
         String name = "src/testcases/" + testcaseName;
         InputStream input = new FileInputStream(name);
 
@@ -55,9 +55,12 @@ public class Main {
             new InstSelector(asmF).visitFn(f);
             new RegAlloc(asmF).work();
             new AsmPrinter(asmF, System.out).print();*/
-        } catch (MxError er) {
-            System.err.println(er.toString());
-            throw new RuntimeException();
+            System.out.println("Success");
+        } catch (Exception er) {
+//            System.err.println(er);
+            er.printStackTrace();
+//            throw new RuntimeException();
+            System.out.println("Fail");
         }
     }
 }

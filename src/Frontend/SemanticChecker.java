@@ -6,9 +6,10 @@ import Util.MxError.SemanticError;
 
 public class SemanticChecker extends ASTVisitor {
     private Scope currentScope;
-    private ClassDef currentClass = null;
-    private FuncDef currentFunc = null;
-    private LambdaExpr currentLambda = null;
+    private ClassDef currentClass;
+    private FuncDef currentFunc;
+    private LambdaExpr currentLambda;
+    private ReturnStmt currentReturnStmt;
 
 
     //todo inline function
@@ -17,9 +18,28 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(Program it) {
+        currentScope = new Scope(currentScope);
+        position pos = position.INLINE_POS;
+        final FuncDef[] inlineFuncDefs = new FuncDef[]{
+                new FuncDef(pos, "print", null, new Type[]{Type.STRING_TYPE}, new String[]{"str"}),
+                new FuncDef(pos, "println", null, new Type[]{Type.STRING_TYPE}, new String[]{"str"}),
+                new FuncDef(pos, "printInt", null, new Type[]{Type.INT_TYPE}, new String[]{"n"}),
+                new FuncDef(pos, "printlnInt", null, new Type[]{Type.INT_TYPE}, new String[]{"n"}),
+                new FuncDef(pos, "getString", Type.STRING_TYPE),
+                new FuncDef(pos, "getInt", Type.INT_TYPE),
+                new FuncDef(pos, "toString", Type.STRING_TYPE, new Type[]{Type.INT_TYPE}, new String[]{"i"})
+        };
+        for (FuncDef funcDef : inlineFuncDefs)Type.addFuncType(funcDef, pos);
+
         for (ProgramUnit programUnit : it.programUnits) {
             ((ASTNode) programUnit).accept(this);
         }
+        FuncDef mainFunc = Type.getFuncDef("main");
+        if (mainFunc == null) throw new SemanticError("no main function", it.pos);
+        if (!Type.INT_TYPE.equals(mainFunc.returnType))
+            throw new SemanticError("main function return type not int", it.pos);
+
+        currentScope = currentScope.parentScope();
     }
 
     @Override
@@ -33,6 +53,9 @@ public class SemanticChecker extends ASTVisitor {
         }
         currentFunc = it;
         ((ASTNode) it.body).accept(this);
+        if (!"main".equals(it.name) && it.returnType != null && currentReturnStmt == null)
+            throw new SemanticError("no return statement in non void function", it.pos);
+        currentReturnStmt = null;
         currentFunc = null;
         currentScope = currentScope.parentScope();
     }
@@ -50,7 +73,9 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(SuiteStmt it) {
-
+        currentScope = new Scope(currentScope);
+        it.stmts.forEach(stmt -> stmt.accept(this));
+        currentScope = currentScope.parentScope();
     }
 
 //TODO handle null value
@@ -59,6 +84,7 @@ public class SemanticChecker extends ASTVisitor {
     public void visit(VarDefStmt it) {
         it.names.forEach(name -> currentScope.defineVariable(name, it.varType, it.pos));
         for (Expr expr : it.init) {
+            if (expr == null) continue;
             expr.accept(this);
             if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
         }
@@ -121,7 +147,7 @@ public class SemanticChecker extends ASTVisitor {
     @Override
     public void visit(SuffixExpr it) {
         it.lhs.accept(this);
-        if (!it.isAssignable) throw new SemanticError("suffix not assignable", it.pos);
+        if (!it.lhs.isAssignable) throw new SemanticError("suffix not assignable", it.pos);
         if (!it.lhs.type.equals(Type.INT_TYPE)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
     }
@@ -149,7 +175,11 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(NewArrayExpr it) {
-
+        it.dims.forEach(index-> {
+            index.accept(this);
+            if (!Type.INT_TYPE.equals(index.type))
+                throw new SemanticError("should use int to index, but use " + it.type, it.pos);
+        });
     }
 
     @Override
@@ -179,11 +209,13 @@ public class SemanticChecker extends ASTVisitor {
         }
         if (it.returnExpr != null) it.returnExpr.accept(this);
         if (currentLambda != null) currentLambda.type = (it.returnExpr == null) ? null : it.returnExpr.type;
-        if (currentFunc != null)
+        if (currentFunc != null) {
             if (it.returnExpr == null && currentFunc.returnType != null ||
                     it.returnExpr != null && currentFunc.returnType == null ||
                     currentFunc.returnType != null && !currentFunc.returnType.equals(it.returnExpr.type))
                 throw new SemanticError("return type does not match with function declaration", it.pos);
+            currentReturnStmt = it;
+        }
     }
 
     @Override
@@ -210,14 +242,13 @@ public class SemanticChecker extends ASTVisitor {
         it.lhs.accept(this);
         ClassDef classDef = Type.getClassDef(it.lhs.type);
 
-
-        FuncDef func = Type.getFuncDef(Type.stringToType(it.name));
-        if (func == null) throw new SemanticError("no this name function", it.pos);
-        if (func.returnType == null) throw new SemanticError("void return cannot be assigned to variable", it.pos);
+        FuncDef func = Type.getFuncDef(it.name);
+        if (func == null) throw new SemanticError("no this name function " + it.name, it.pos);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
             throw new SemanticError("function parameters and call parameters numbers do not match", it.pos);
         for (int i = 0; i < argSize; ++i) {
+            it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
                 throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
         }
@@ -226,13 +257,13 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(FuncCallExpr it) {
-        FuncDef func = Type.getFuncDef(Type.stringToType(it.name));
+        FuncDef func = Type.getFuncDef(it.name);
         if (func == null) throw new SemanticError("no this name function", it.pos);
-        if (func.returnType == null) throw new SemanticError("void return cannot be assigned to variable", it.pos);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
             throw new SemanticError("function parameters and call parameters numbers do not match", it.pos);
         for (int i = 0; i < argSize; ++i) {
+            it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
                 throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
         }
@@ -252,7 +283,7 @@ public class SemanticChecker extends ASTVisitor {
             throw new SemanticError("lambda argList length not match", it.pos);
         currentLambda = it;
         currentScope = new Scope(currentScope);
-        for (int i = 0; i < sz; ++i){
+        for (int i = 0; i < sz; ++i) {
             VarDefStmt varDefStmt = new VarDefStmt(it.pos, it.parameterTypes.get(i));
             varDefStmt.names.add(it.parameterIdentifiers.get(i));
             varDefStmt.init.add(it.argList.get(i));
@@ -274,6 +305,9 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(AssignExpr it) {
+        if (it.rhs == null) throw new SemanticError("void function can not be assigned to variable", it.pos);
+        it.rhs.accept(this);
+        it.lhs.accept(this);
         if (!it.lhs.isAssignable) throw new SemanticError("lhs is not assignable", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
@@ -284,5 +318,9 @@ public class SemanticChecker extends ASTVisitor {
         if (Type.getClassDef(it.type) == null) throw new SemanticError("new class does not exist", it.pos);
     }
 
+    @Override
+    public void visit(ExprStmt it) {
+        it.expr.accept(this);
+    }
 
 }
