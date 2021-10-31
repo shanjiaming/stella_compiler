@@ -30,7 +30,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String testcaseName;
         testcaseName = scanner.nextLine();
-//        testcaseName = "sema/array-package/array-2.mx";
+//        testcaseName = "sema\\misc-package\\misc-6.mx";
         String name = "src/testcases/" + testcaseName;
         InputStream input = new FileInputStream(name);
 

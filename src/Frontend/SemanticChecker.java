@@ -9,12 +9,9 @@ public class SemanticChecker extends ASTVisitor {
     private ClassDef currentClass;
     private FuncDef currentFunc;
     private LambdaExpr currentLambda;
+    private ConstructDef currentConstructDef;
     private ReturnStmt currentReturnStmt;
 
-
-    //todo inline function
-    //todo main function
-    //todo know that not void function should has return statement except main
 
     @Override
     public void visit(Program it) {
@@ -29,7 +26,7 @@ public class SemanticChecker extends ASTVisitor {
                 new FuncDef(pos, "getInt", Type.INT_TYPE),
                 new FuncDef(pos, "toString", Type.STRING_TYPE, new Type[]{Type.INT_TYPE}, new String[]{"i"})
         };
-        for (FuncDef funcDef : inlineFuncDefs)Type.addFuncType(funcDef, pos);
+        for (FuncDef funcDef : inlineFuncDefs) Type.addFuncType(funcDef, pos);
 
         for (ProgramUnit programUnit : it.programUnits) {
             ((ASTNode) programUnit).accept(this);
@@ -38,7 +35,8 @@ public class SemanticChecker extends ASTVisitor {
         if (mainFunc == null) throw new SemanticError("no main function", it.pos);
         if (!Type.INT_TYPE.equals(mainFunc.returnType))
             throw new SemanticError("main function return type not int", it.pos);
-
+        if (!mainFunc.parameterIdentifiers.isEmpty() || !mainFunc.parameterTypes.isEmpty())
+            throw new SemanticError("main function should not hava parameters", it.pos);
         currentScope = currentScope.parentScope();
     }
 
@@ -82,18 +80,23 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(VarDefStmt it) {
-        it.names.forEach(name -> currentScope.defineVariable(name, it.varType, it.pos));
-        for (Expr expr : it.init) {
-            if (expr == null) continue;
-            expr.accept(this);
-            if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
+        int sz = it.names.size();
+        for (int i = 0; i < sz; ++i) {
+            Expr expr = it.init.get(i);
+            if (expr != null) {
+                expr.accept(this);
+                if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
+            }
+            currentScope.defineVariable(it.names.get(i), it.varType, it.pos);
         }
     }
 
     @Override
     public void visit(ConstructDef it) {
         currentScope = new Scope(currentScope);
+        currentConstructDef = it;
         it.body.accept(this);
+        currentConstructDef = null;
         currentScope = currentScope.parentScope();
     }
 
@@ -155,6 +158,7 @@ public class SemanticChecker extends ASTVisitor {
     @Override
     public void visit(IfStmt it) {
         it.cond.accept(this);
+        if (!Type.BOOL_TYPE.equals(it.cond.type)) throw new SemanticError("should be bool in if condition", it.pos);
         currentScope = new Scope(currentScope);
         it.trueNode.accept(this);
         currentScope = currentScope.parentScope();
@@ -175,7 +179,7 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(NewArrayExpr it) {
-        it.dims.forEach(index-> {
+        it.dims.forEach(index -> {
             index.accept(this);
             if (!Type.INT_TYPE.equals(index.type))
                 throw new SemanticError("should use int to index, but use " + it.type, it.pos);
@@ -185,10 +189,14 @@ public class SemanticChecker extends ASTVisitor {
     @Override
     public void visit(ForStmt it) {
         currentScope = new Scope(currentScope, it);
-        it.init.accept(this);
-        it.cond.accept(this);
-        it.incr.accept(this);
-        it.body.accept(this);
+        if (it.init != null) it.init.accept(this);
+        if (it.cond != null) {
+            it.cond.accept(this);
+            if (!Type.BOOL_TYPE.equals(it.cond.type))
+                throw new SemanticError("should be bool in loop condition", it.pos);
+        }
+        if (it.incr != null) it.incr.accept(this);
+        if (it.body != null) it.body.accept(this);
         currentScope = currentScope.parentScope();
     }
 
@@ -204,7 +212,7 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(ReturnStmt it) {
-        if (currentFunc == null && currentLambda == null) {
+        if (currentFunc == null && currentLambda == null && currentConstructDef == null) {
             throw new SemanticError("return statement out of function", it.pos);
         }
         if (it.returnExpr != null) it.returnExpr.accept(this);
@@ -215,6 +223,10 @@ public class SemanticChecker extends ASTVisitor {
                     currentFunc.returnType != null && !currentFunc.returnType.equals(it.returnExpr.type))
                 throw new SemanticError("return type does not match with function declaration", it.pos);
             currentReturnStmt = it;
+        }
+        if (currentConstructDef != null) {
+            if (it.returnExpr != null)
+                throw new SemanticError("return type should be void in construct function", it.pos);
         }
     }
 
@@ -240,13 +252,19 @@ public class SemanticChecker extends ASTVisitor {
     @Override
     public void visit(MemberFuncCallExpr it) {
         it.lhs.accept(this);
+        if (it.lhs.type.dim > 0) {
+            if (!("size".equals(it.name) && it.argList.size() == 0))
+                throw new SemanticError("not qualified to use array size function", it.pos);
+            it.type = Type.INT_TYPE;
+            return;
+        }
         ClassDef classDef = Type.getClassDef(it.lhs.type);
 
-        FuncDef func = Type.getFuncDef(it.name);
+        FuncDef func = classDef.funcDefs.get(it.name);
         if (func == null) throw new SemanticError("no this name function " + it.name, it.pos);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
-            throw new SemanticError("function parameters and call parameters numbers do not match", it.pos);
+            throw new SemanticError("function parameters and call parameters numbers do not match "+it.name, it.pos);
         for (int i = 0; i < argSize; ++i) {
             it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
@@ -257,11 +275,19 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(FuncCallExpr it) {
+        if (currentClass != null){
+            try {
+                MemberFuncCallExpr memberFuncCallExpr = new MemberFuncCallExpr(it.pos, new ThisExpr(it.pos), it);
+                memberFuncCallExpr.accept(this);
+                it.type = memberFuncCallExpr.type;
+                return;
+            }
+            catch (SemanticError ignored){}
+        }
         FuncDef func = Type.getFuncDef(it.name);
-        if (func == null) throw new SemanticError("no this name function", it.pos);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
-            throw new SemanticError("function parameters and call parameters numbers do not match", it.pos);
+            throw new SemanticError("function parameters and call parameters numbers do not match "+it.name, it.pos);
         for (int i = 0; i < argSize; ++i) {
             it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))

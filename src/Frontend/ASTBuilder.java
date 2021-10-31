@@ -36,6 +36,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitClassDef(ClassDefContext ctx) {
+        isVisitingClass = true;
         position pos = new position(ctx);
         ClassDef classDef = new ClassDef(pos, ctx.Identifier().getText());
         ctx.constructDef().forEach(constructDef -> {
@@ -60,9 +61,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             classDef.members.put(varName, Type.visit(varDef.type()));
         }));
         Type.addClassType(classDef, pos);
+        isVisitingClass = false;
         return classDef;
     }
 
+    private boolean isVisitingClass = false;
 
     @Override
     public ASTNode visitFuncDef(FuncDefContext ctx) {
@@ -75,7 +78,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         );
         ctx.parameterList().type().forEach(type -> funcDef.parameterTypes.add(Type.visit(type)));
         ctx.parameterList().Identifier().forEach(identifier -> funcDef.parameterIdentifiers.add(identifier.getText()));
-        Type.addFuncType(funcDef, pos);
+        if (!isVisitingClass) Type.addFuncType(funcDef, pos);
         return funcDef;
     }
 
@@ -88,7 +91,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitForStmt(ForStmtContext ctx) {
-        return new ForStmt(new position(ctx), (Expr) visit(ctx.forInit), (Expr) visit(ctx.forCondition), (Expr) visit(ctx.forIncrease), (Stmt) visit(ctx.stmt()));//HACK shoubld use statement without {} here
+        return new ForStmt(new position(ctx), ctx.forInit == null ? null : (Expr) visit(ctx.forInit), ctx.forCondition == null ? null : (Expr) visit(ctx.forCondition), ctx.forIncrease == null ? null : (Expr) visit(ctx.forIncrease), (Stmt) visit(ctx.stmt()));//HACK shoubld use statement without {} here
     }
 
 
@@ -216,6 +219,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     }
 
     @Override
+    public ASTNode visitEmptyStmt(EmptyStmtContext ctx){
+        return new EmptyStmt(new position(ctx));
+    }
+
+    @Override
     public ASTNode visitParenExpr(ParenExprContext ctx) {
         return visit(ctx.expr());
     }
@@ -237,7 +245,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitExprStmt(ExprStmtContext ctx) {
-        return new ExprStmt(new position(ctx),(Expr)visit(ctx.expr()));
+        return new ExprStmt(new position(ctx), (Expr) visit(ctx.expr()));
     }
 
     @Override

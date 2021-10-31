@@ -30,6 +30,8 @@ public class  Scope {
         if (members.containsKey(name)) {
             throw new SemanticError("Semantic Error: variable redefine", pos);
         }
+        if(Type.getClassDef(Type.stringToType(name)) != null)
+            throw new SemanticError("same variable and class name", pos);
         members.put(name, t);
     }
 
