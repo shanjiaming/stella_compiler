@@ -27,13 +27,13 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws Exception{
 
-        Scanner scanner = new Scanner(System.in);
-        String testcaseName;
-        testcaseName = scanner.nextLine();
+//        Scanner scanner = new Scanner(System.in);
+//        String testcaseName;
+//        testcaseName = scanner.nextLine();
 //        testcaseName = "sema\\misc-package\\misc-6.mx";
-        String name = "src/testcases/" + testcaseName;
-        InputStream input = new FileInputStream(name);
-
+//        String name = "src/testcases/" + testcaseName;
+//        InputStream input = new FileInputStream(name);
+        InputStream input = System.in;
         try {
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
             lexer.removeErrorListeners();
@@ -55,12 +55,12 @@ public class Main {
             new InstSelector(asmF).visitFn(f);
             new RegAlloc(asmF).work();
             new AsmPrinter(asmF, System.out).print();*/
-            System.out.println("Success");
+//            System.out.println("Success");
         } catch (Exception er) {
 //            System.err.println(er);
-            er.printStackTrace();
-//            throw new RuntimeException();
-            System.out.println("Fail");
+//            er.printStackTrace();
+            throw new RuntimeException();
+//            System.out.println("Fail");
         }
     }
 }
