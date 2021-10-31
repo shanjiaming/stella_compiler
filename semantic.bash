@@ -1,4 +1,3 @@
-# shellcheck disable=SC2121
 set ff=UNIX
 set -e
-java -cp ./runContain Main
+cat | java -cp /ulib/java/antlr-4.9.2-complete.jar:./bin Main -semantic
