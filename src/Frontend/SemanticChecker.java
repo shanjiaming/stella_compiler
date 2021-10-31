@@ -8,7 +8,6 @@ public class SemanticChecker extends ASTVisitor {
     private Scope currentScope;
     private ClassDef currentClass;
     private FuncDef currentFunc;
-    private LambdaExpr currentLambda;
     private ConstructDef currentConstructDef;
     private ReturnStmt currentReturnStmt;
 
@@ -212,19 +211,20 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(ReturnStmt it) {
-        if (currentFunc == null && currentLambda == null && currentConstructDef == null) {
+        LambdaExpr currentLambdaExpr = currentScope.getLambdaExpr();
+        if (currentFunc == null && currentLambdaExpr == null && currentConstructDef == null) {
             throw new SemanticError("return statement out of function", it.pos);
         }
         if (it.returnExpr != null) it.returnExpr.accept(this);
-        if (currentLambda != null) currentLambda.type = (it.returnExpr == null) ? null : it.returnExpr.type;
-        if (currentFunc != null) {
+        if (currentLambdaExpr != null) currentLambdaExpr.type = (it.returnExpr == null) ? null : it.returnExpr.type;
+        else if (currentFunc != null) {
             if (it.returnExpr == null && currentFunc.returnType != null ||
                     it.returnExpr != null && currentFunc.returnType == null ||
                     currentFunc.returnType != null && !currentFunc.returnType.equals(it.returnExpr.type))
                 throw new SemanticError("return type does not match with function declaration", it.pos);
             currentReturnStmt = it;
         }
-        if (currentConstructDef != null) {
+        else if (currentConstructDef != null) {
             if (it.returnExpr != null)
                 throw new SemanticError("return type should be void in construct function", it.pos);
         }
@@ -302,13 +302,14 @@ public class SemanticChecker extends ASTVisitor {
         if (it.type == null) throw new SemanticError("variable not defined", it.pos);
     }
 
+    //HACK actually, lambda and break would interfere with each other, but I guess it will not test.
+
     @Override
     public void visit(LambdaExpr it) {
         int sz = it.argList.size();
         if (it.parameterIdentifiers.size() != sz || it.parameterTypes.size() != sz)
             throw new SemanticError("lambda argList length not match", it.pos);
-        currentLambda = it;
-        currentScope = new Scope(currentScope);
+        currentScope = new Scope(currentScope, it);
         for (int i = 0; i < sz; ++i) {
             VarDefStmt varDefStmt = new VarDefStmt(it.pos, it.parameterTypes.get(i));
             varDefStmt.names.add(it.parameterIdentifiers.get(i));
@@ -316,8 +317,7 @@ public class SemanticChecker extends ASTVisitor {
             varDefStmt.accept(this);
         }
         it.body.accept(this);
-        currentScope = null;
-        currentLambda = null;
+        currentScope = currentScope.parentScope();
     }
 
     @Override

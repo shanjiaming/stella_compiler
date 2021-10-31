@@ -1,6 +1,7 @@
 package Util;
 
 import AST.ForStmt;
+import AST.LambdaExpr;
 import Util.MxError.SemanticError;
 
 import java.util.HashMap;
@@ -8,6 +9,8 @@ import java.util.HashMap;
 public class  Scope {
 
     private ForStmt forStmt = null;
+
+    private LambdaExpr lambdaExpr = null;
 
     private final HashMap<String, Type> members = new HashMap<>();
 
@@ -20,6 +23,11 @@ public class  Scope {
     public Scope(Scope parentScope, ForStmt forStmt) {
         this.parentScope = parentScope;
         this.forStmt = forStmt;
+    }
+
+    public Scope(Scope parentScope, LambdaExpr lambdaExpr) {
+        this.parentScope = parentScope;
+        this.lambdaExpr = lambdaExpr;
     }
 
     public Scope parentScope() {
@@ -38,6 +46,12 @@ public class  Scope {
     public ForStmt getForStmt(){
         if (forStmt != null) return forStmt;
         if (parentScope != null) return parentScope.getForStmt();
+        return null;
+    }
+
+    public LambdaExpr getLambdaExpr(){
+        if (lambdaExpr != null) return lambdaExpr;
+        if (parentScope != null) return parentScope.getLambdaExpr();
         return null;
     }
 
