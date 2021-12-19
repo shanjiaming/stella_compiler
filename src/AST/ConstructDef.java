@@ -5,6 +5,9 @@ import Util.position;
 public class ConstructDef extends ASTNode{
     public SuiteStmt body;
 
+    public ConstructDef(SuiteStmt body) {
+        this.body = body;
+    }
     public ConstructDef(position pos, SuiteStmt body) {
         super(pos);
         this.body = body;

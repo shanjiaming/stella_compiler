@@ -1,7 +1,10 @@
 package Util;
 
+import AST.Expr;
 import AST.ForStmt;
 import AST.LambdaExpr;
+import IR.PointerRegister;
+import IR.Register;
 import Util.MxError.SemanticError;
 
 import java.util.HashMap;
@@ -12,9 +15,11 @@ public class  Scope {
 
     private LambdaExpr lambdaExpr = null;
 
-    private final HashMap<String, Type> members = new HashMap<>();
+    private final HashMap<String, Type> namesToTypes = new HashMap<>();
+    private final HashMap<String, Register> namesToRegisters = new HashMap<>();
 
     private final Scope parentScope;
+    public HashMap<String, Register> entities = new HashMap<>();
 
     public Scope(Scope parentScope) {
         this.parentScope = parentScope;
@@ -35,12 +40,12 @@ public class  Scope {
     }
 
     public void defineVariable(String name, Type t, position pos) {
-        if (members.containsKey(name)) {
+        if (namesToTypes.containsKey(name)) {
             throw new SemanticError("Semantic Error: variable redefine", pos);
         }
         if(Type.getClassDef(Type.stringToType(name)) != null)
             throw new SemanticError("same variable and class name", pos);
-        members.put(name, t);
+        namesToTypes.put(name, t);
     }
 
     public ForStmt getForStmt(){
@@ -56,7 +61,7 @@ public class  Scope {
     }
 
     public boolean containsVariable(String name, boolean lookUpon) {
-        if (members.containsKey(name)) {
+        if (namesToTypes.containsKey(name)) {
             return true;
         } else if (parentScope != null && lookUpon) {
             return parentScope.containsVariable(name, true);
@@ -65,11 +70,38 @@ public class  Scope {
         }
     }
     public Type getType(String name, boolean lookUpon) {
-        if (members.containsKey(name)) {
-            return members.get(name);
+        if (namesToTypes.containsKey(name)) {
+            return namesToTypes.get(name);
         } else if (parentScope != null && lookUpon) {
             return parentScope.getType(name, true);
         }
         return null;
     }
+    public Register getRegister(String name, boolean lookUpon) {
+        if (namesToRegisters.containsKey(name)) {
+            return namesToRegisters.get(name);
+        } else if (parentScope != null && lookUpon) {
+            return parentScope.getRegister(name, true);
+        }
+        return null;
+    }
+//    public void addRegister(Expr expr) {
+//        Register register = new Register();
+//        expr.entity = register;
+//        namesToRegisters.put(register.name, register);
+//    }
+    public void addPointerRegister(PointerRegister pointerRegister) {
+        PointerRegister register = new PointerRegister();
+        pointerRegister = register;
+        namesToRegisters.put(register.val, register);
+    }
+    public void addPointerRegister(String name, PointerRegister pointerRegister) {
+        namesToRegisters.put(name, pointerRegister);
+    }
+//    public void addRegister(String name, Expr expr) {
+//        Register register = new Register();
+//        register.name = name;
+//        expr.entity = register;
+//        namesToRegisters.put(register.name, register);
+//    }
 }

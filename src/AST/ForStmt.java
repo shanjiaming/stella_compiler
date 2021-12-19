@@ -7,6 +7,13 @@ public class ForStmt extends Stmt {
 	public Stmt body;
 
 
+	public ForStmt(Expr init, Expr cond, Expr incr, Stmt body) {
+		this.init = init;
+		this.cond = cond;
+		this.incr = incr;
+		this.body = body;
+	}
+
 	public ForStmt(position pos, Expr init, Expr cond, Expr incr, Stmt body) {
 		super(pos);
 		this.init = init;

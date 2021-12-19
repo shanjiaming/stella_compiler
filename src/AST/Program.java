@@ -11,6 +11,8 @@ public class Program extends ASTNode{
 //    public ArrayList<VarDefStmt> varDefStmts = new ArrayList<>();
     public ArrayList<ProgramUnit> programUnits = new ArrayList<>();
 
+    public Program() {
+    }
     public Program(position pos) {
         super(pos);
     }

@@ -12,6 +12,11 @@ public class LambdaExpr extends Expr {
 	public SuiteStmt body;
 	public ArrayList<Expr> argList = new ArrayList<>();
 
+	public LambdaExpr(SuiteStmt body) {
+		super(false);
+		this.body = body;
+	}
+
 	public LambdaExpr(position pos, SuiteStmt body) {
 		super(pos, false);
 		this.body = body;

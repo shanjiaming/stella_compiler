@@ -5,6 +5,7 @@ import Util.position;
 public class EmptyStmt extends Stmt {
 	public Stmt loopNode;
 
+	public EmptyStmt() {}
 	public EmptyStmt(position pos) {super(pos);}
 
 	@Override

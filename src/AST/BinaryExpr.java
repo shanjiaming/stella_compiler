@@ -12,6 +12,14 @@ public class BinaryExpr extends Expr {
     public String op;
 
 
+    public BinaryExpr(Expr lhs, Expr rhs, String op) {
+        super(false);
+        this.lhs = lhs;
+        this.rhs = rhs;
+        this.op = op;
+    }
+
+
     public BinaryExpr(position pos, Expr lhs, Expr rhs, String op) {
         super(pos, false);
         this.lhs = lhs;

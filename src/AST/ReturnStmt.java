@@ -5,6 +5,7 @@ import Util.position;
 public class ReturnStmt extends Stmt {
 	public Expr returnExpr;
 
+	public ReturnStmt() {}
 	public ReturnStmt(position pos) {super(pos);}
 
 	@Override

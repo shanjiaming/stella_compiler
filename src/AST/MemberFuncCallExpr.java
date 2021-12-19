@@ -10,6 +10,13 @@ public class MemberFuncCallExpr extends Expr{
     public ArrayList<Expr> argList = new ArrayList<>();
 
 
+    public MemberFuncCallExpr(Expr lhs, FuncCallExpr rhs) {
+        super(false);
+        this.lhs = lhs;
+        this.name = rhs.name;
+        this.argList = rhs.argList;
+    }
+
     public MemberFuncCallExpr(position pos, Expr lhs, FuncCallExpr rhs) {
         super(pos,false);
         this.lhs = lhs;

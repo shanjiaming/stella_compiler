@@ -1,5 +1,6 @@
 package AST;
 
+import IR.PointerRegister;
 import Util.position;
 import Util.Type;
 
@@ -12,8 +13,13 @@ public class FuncDef extends ASTNode implements ProgramUnit{
     public ArrayList<String> parameterIdentifiers = new ArrayList<>();
     public SuiteStmt body;
     public String name;
-//    public function func;
+    public ArrayList<PointerRegister> vars = new ArrayList<>();
 
+    public FuncDef(String name, SuiteStmt body, Type returnType) {
+        this.name = name;
+        this.body = body;
+        this.returnType = returnType;
+    }
     public FuncDef(position pos, String name, SuiteStmt body, Type returnType) {
         super(pos);
         this.name = name;

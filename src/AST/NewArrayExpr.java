@@ -7,6 +7,9 @@ import java.util.ArrayList;
 public class NewArrayExpr extends Expr {
 	public ArrayList<Expr> dims = new ArrayList<>();
 
+	public NewArrayExpr() {
+		super(true);
+	}
 	public NewArrayExpr(position pos) {
 		super(pos,true);
 	}

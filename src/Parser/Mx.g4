@@ -55,7 +55,7 @@ expr
     :   value                                        #valueExpr
     |   '('expr')'                                   #parenExpr
     |   expr op=('++'|'--')                          #suffixExpr
-    |   <assoc=right> newItem                    #newArrayExpr
+    |   <assoc=right> newItem                        #newArrayExpr
     |   expr '['expr']'                              #indexExpr
     |   expr '.' Identifier exprList?                #memberExpr
     |   <assoc=right> op=('++'|'--') expr            #prefixExpr

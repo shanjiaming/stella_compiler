@@ -6,6 +6,12 @@ public class PrefixExpr extends Expr{
     public Expr lhs;
     public String op;
 
+    public PrefixExpr(Expr lhs, String op) {
+        super(true);
+        this.lhs = lhs;
+        this.op = op;
+    }
+
     public PrefixExpr(position pos, Expr lhs, String op) {
         super(pos,true);
         this.lhs = lhs;

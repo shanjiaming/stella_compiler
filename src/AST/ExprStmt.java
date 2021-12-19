@@ -12,6 +12,9 @@ public class ExprStmt extends Stmt {
         this.expr = expr;
     }
 
+    public ExprStmt(Expr expr) {
+        this.expr = expr;
+    }
     @Override
     public void accept(ASTVisitor visitor) {
         visitor.visit(this);

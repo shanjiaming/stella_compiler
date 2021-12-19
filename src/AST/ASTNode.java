@@ -9,5 +9,10 @@ abstract public class ASTNode {
         this.pos = pos;
     }
 
+
+    public ASTNode() {
+    }
+
+
     abstract public void accept(ASTVisitor visitor);
 }

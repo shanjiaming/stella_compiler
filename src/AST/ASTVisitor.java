@@ -54,9 +54,7 @@ abstract public class ASTVisitor {
 
     public void visit(MemberFuncCallExpr memberFuncCallExpr){}
 
-    public void visit(VarDefStmt varDefStmt) {
-    }
+    public void visit(VarDefStmt varDefStmt) {}
 
-    public void visit(ExprStmt exprStmt) {
-    }
+    public void visit(ExprStmt exprStmt) {}
 }

@@ -8,6 +8,11 @@ public class FuncCallExpr extends Expr {
 	public String name;
 	public ArrayList<Expr> argList = new ArrayList<>();
 
+	public FuncCallExpr(String name) {
+		super(false);
+		this.name = name;
+	}
+
 	public FuncCallExpr(position pos, String name) {
 		super(pos,false);
 		this.name = name;

@@ -19,6 +19,8 @@ public class Type {
         this.dim = dim;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,6 +48,14 @@ public class Type {
                 '}';
     }
 
+    public Type reduceDim() {
+        return new Type(typeName, dim - 1);
+    }
+
+    public boolean isBasici32(){
+        return ("int".equals(typeName) || "bool".equals(typeName)) && dim == 0;
+    }
+
     public static boolean isSameType(Type t1, Type t2) {
         return (t1 != null) && t1.equals(t2);
     }
@@ -62,9 +72,6 @@ public class Type {
         return new Type(str, 0);
     }
 
-    public static Type reduceDim(Type type) {
-        return new Type(type.typeName, type.dim - 1);
-    }
 
     public static final Type INT_TYPE = new Type("int", 0);
     public static final Type BOOL_TYPE = new Type("bool", 0);
@@ -97,9 +104,9 @@ public class Type {
         funcTypes.put(funcDef.name, funcDef);
     }
 
-    public static boolean hasBasicType(Type type) {
-        return basicTypes.contains(type);
-    }
+//    public static boolean hasBasicType(Type type) {
+//        return basicTypes.contains(type);
+//    }
 
     public static boolean hasClassType(Type type) {
         return classTypes.containsKey(type);
@@ -109,12 +116,16 @@ public class Type {
         return funcTypes.containsKey(type);
     }
 
-    public static boolean hasType(Type type) {
-        return hasBasicType(type) || hasClassType(type);
-    }
+//    public static boolean hasType(Type type) {
+//        return hasBasicType(type) || hasClassType(type);
+//    }
 
     public static ClassDef getClassDef(Type type) {
         return classTypes.get(type);
+    }
+
+    public int size(){
+        return (dim == 0 || isBasici32()) ? 4 : getClassDef(this).classSize;
     }
 
     public static FuncDef getFuncDef(String type) {

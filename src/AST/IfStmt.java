@@ -6,6 +6,12 @@ public class IfStmt extends Stmt {
 	public Expr cond;
 	public Stmt trueNode, falseNode;
 
+	public IfStmt(Expr cond, Stmt trueNode, Stmt falseNode) {
+		this.cond = cond;
+		this.trueNode = trueNode;
+		this.falseNode = falseNode;
+	}
+
 	public IfStmt(position pos, Expr cond, Stmt trueNode, Stmt falseNode) {
 		super(pos);
 		this.cond = cond;

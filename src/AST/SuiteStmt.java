@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class SuiteStmt extends Stmt {
 	public ArrayList<Stmt> stmts = new ArrayList<>();
 	
+	public SuiteStmt() {}
 	public SuiteStmt(position pos) {super(pos);}
 
 	@Override

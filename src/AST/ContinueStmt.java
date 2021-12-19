@@ -5,6 +5,8 @@ import Util.position;
 public class ContinueStmt extends Stmt {
 	public Stmt loopNode;
 
+	public ContinueStmt() {}
+
 	public ContinueStmt(position pos) {super(pos);}
 
 	@Override

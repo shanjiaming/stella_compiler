@@ -1,8 +1,14 @@
 package Frontend;
 
 import AST.*;
+import IR.Constant;
+import IR.Entity;
+import IR.PointerRegister;
+import IR.Register;
 import Util.*;
 import Util.MxError.SemanticError;
+
+// in this part, we also new all the entity we wanted.
 
 public class SemanticChecker extends ASTVisitor {
     private Scope currentScope;
@@ -47,6 +53,7 @@ public class SemanticChecker extends ASTVisitor {
         currentScope = new Scope(currentScope);
         for (int i = 0; i < sz; ++i) {
             currentScope.defineVariable(it.parameterIdentifiers.get(i), it.parameterTypes.get(i), it.pos);
+            it.vars.add(new PointerRegister());
         }
         currentFunc = it;
         ((ASTNode) it.body).accept(this);
@@ -61,7 +68,11 @@ public class SemanticChecker extends ASTVisitor {
     public void visit(ClassDef it) {
         currentScope = new Scope(currentScope);
         currentClass = it;
-        it.members.forEach((str, type) -> currentScope.defineVariable(str, type, it.pos));
+        it.members.forEach((str, type) -> {
+            currentScope.defineVariable(str, type, it.pos);
+            it.offsets.put(str, it.classSize);
+            it.classSize += 32;
+        });
         it.constructDef.accept(this);
         it.funcDefs.values().forEach(funcDef -> funcDef.accept(this));
         currentClass = null;
@@ -87,6 +98,8 @@ public class SemanticChecker extends ASTVisitor {
                 if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
             }
             currentScope.defineVariable(it.names.get(i), it.varType, it.pos);
+            it.vars.add(new PointerRegister());
+            currentScope.addPointerRegister(it.names.get(i), it.vars.get(i));
         }
     }
 
@@ -122,6 +135,7 @@ public class SemanticChecker extends ASTVisitor {
         } else if ("==".equals(it.op) || "!=".equals(it.op)) {
             it.type = Type.BOOL_TYPE;
         } else throw new SemanticError("types not match", it.pos);
+        it.entity = new Register();
     }
 
     @Override
@@ -136,6 +150,7 @@ public class SemanticChecker extends ASTVisitor {
         ))
             throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
+        it.entity = new Register();
     }
 
     @Override
@@ -144,6 +159,7 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.isAssignable) throw new SemanticError("prefix not assignable", it.pos);
         if (!it.lhs.type.equals(Type.INT_TYPE)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
+        it.entity = it.lhs.entity;//TODO 不很会搞，以及下标也不很会搞 // 移到IRbuilder加一条语句好了
     }
 
     @Override
@@ -152,6 +168,7 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.lhs.isAssignable) throw new SemanticError("suffix not assignable", it.pos);
         if (!it.lhs.type.equals(Type.INT_TYPE)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
+        it.entity = new Register();
     }
 
     @Override
@@ -183,6 +200,7 @@ public class SemanticChecker extends ASTVisitor {
             if (!Type.INT_TYPE.equals(index.type))
                 throw new SemanticError("should use int to index, but use " + it.type, it.pos);
         });
+        it.entity = new Register();
     }
 
     @Override
@@ -237,7 +255,8 @@ public class SemanticChecker extends ASTVisitor {
         if (it.lhs.type.dim <= 0) throw new SemanticError(it.lhs.type + "cannot be indexed", it.pos);
         if (!Type.INT_TYPE.equals(it.rhs.type))
             throw new SemanticError("should use int to index, but use " + it.type, it.pos);
-        it.type = Type.reduceDim(it.lhs.type);
+        it.type = it.lhs.type.reduceDim();//TODO getelementptr need to think
+        it.entity = new PointerRegister();
     }
 
     @Override
@@ -246,7 +265,9 @@ public class SemanticChecker extends ASTVisitor {
         ClassDef classDef = Type.getClassDef(it.lhs.type);
         Type type = classDef.members.get(it.rhs.name);
         if (type == null) throw new SemanticError("no this name member variable", it.pos);
-        it.type = type;
+        it.type = type;//TODO getelementptr need to think
+        it.entity = new PointerRegister();
+//        it.entity = currentScope.getRegister(it.name, true);
     }
 
     @Override
@@ -271,6 +292,7 @@ public class SemanticChecker extends ASTVisitor {
                 throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
         }
         it.type = func.returnType;
+        it.entity = new Register();
     }
 
     @Override
@@ -294,12 +316,14 @@ public class SemanticChecker extends ASTVisitor {
                 throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
         }
         it.type = func.returnType;
+        it.entity = new Register();
     }
 
     @Override
     public void visit(VarExpr it) {
         it.type = currentScope.getType(it.name, true);
         if (it.type == null) throw new SemanticError("variable not defined", it.pos);
+        it.entity = currentScope.getRegister(it.name, true);
     }
 
     //HACK actually, lambda and break would interfere with each other, but I guess it will not test.
@@ -318,11 +342,11 @@ public class SemanticChecker extends ASTVisitor {
         }
         it.body.accept(this);
         currentScope = currentScope.parentScope();
+        it.entity = new Register();//though it doesn't need to do.
     }
 
     @Override
     public void visit(ConstExpr it) {
-
     }
 
     @Override
@@ -337,11 +361,13 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.lhs.isAssignable) throw new SemanticError("lhs is not assignable", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
+        it.entity = it.lhs.entity;
     }
 
     @Override
     public void visit(NewClassExpr it) {
         if (Type.getClassDef(it.type) == null) throw new SemanticError("new class does not exist", it.pos);
+        it.entity = new Register();
     }
 
     @Override
