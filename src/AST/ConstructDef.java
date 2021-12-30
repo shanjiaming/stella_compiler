@@ -3,6 +3,8 @@ package AST;
 import Util.position;
 
 public class ConstructDef extends ASTNode{
+    public FuncDef proxyFunc;
+
     public SuiteStmt body;
 
     public ConstructDef(SuiteStmt body) {

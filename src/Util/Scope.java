@@ -1,6 +1,5 @@
 package Util;
 
-import AST.Expr;
 import AST.ForStmt;
 import AST.LambdaExpr;
 import IR.PointerRegister;
@@ -43,7 +42,7 @@ public class  Scope {
         if (namesToTypes.containsKey(name)) {
             throw new SemanticError("Semantic Error: variable redefine", pos);
         }
-        if(Type.getClassDef(Type.stringToType(name)) != null)
+        if(Type.stringToType(name).getClassDef() != null)
             throw new SemanticError("same variable and class name", pos);
         namesToTypes.put(name, t);
     }
@@ -77,11 +76,11 @@ public class  Scope {
         }
         return null;
     }
-    public Register getRegister(String name, boolean lookUpon) {
+    public Register getPointerRegister(String name, boolean lookUpon) {
         if (namesToRegisters.containsKey(name)) {
             return namesToRegisters.get(name);
         } else if (parentScope != null && lookUpon) {
-            return parentScope.getRegister(name, true);
+            return parentScope.getPointerRegister(name, true);
         }
         return null;
     }

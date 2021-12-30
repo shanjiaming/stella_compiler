@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class VarExpr extends Expr {
 	public String name;
+	public MemberExpr proxyThis;
 
 	public VarExpr(String name) {
 		super(true);

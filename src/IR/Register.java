@@ -8,5 +8,16 @@ public class Register extends Entity {
         val = "" +(counter++);
     }
 
+    public Register(String name) {
+        val = "/*" + name + "*/" +(counter++);
+    }
+
+    public static Register sp = new Register("sp");
+    public static Register s0 = new Register("s0");
+    public static Register ra = new Register("ra");
+    public static Register a0 = new Register("a0");
+
     @Override public String toString() {return "reg[" + val + "]";}
+
+    public String regToString() {return "reg[" + val + "]";}
 }

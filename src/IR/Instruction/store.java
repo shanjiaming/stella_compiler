@@ -10,6 +10,6 @@ public class store extends Statement {
 		this.pointer = pointer;
 		this.entity = entity;
 	}
-
-	@Override public String toString() {return pointer + " = " + entity;}
+	@Override public String toString() {
+		return pointer.memToString() + " = " + entity;}
 }

@@ -37,8 +37,9 @@ public class Main {
 //        InputStream input = new FileInputStream(name);
 //        InputStream input = System.in;
 //        OutputStream output = System.out;
-        InputStream input = new FileInputStream("r/myinput.mx");
-        OutputStream output = new FileOutputStream("r/myoutput.cpp");//中间语言输出到哪里
+//        InputStream input = new FileInputStream("src/testcases/codegen/e9.mx");
+        InputStream input = new FileInputStream("r/test.mx");
+        OutputStream output = new FileOutputStream("r/ir.cpp");//中间语言输出到哪里
 
         try {
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -56,11 +57,15 @@ public class Main {
             new IRBuilder(f).visit(ASTRoot);
             new IRPrinter(f, output).run();
 
-            output.close();
+//            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
+//            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
+//            Runtime.getRuntime().exec("wsl rm r/a.out");
 
-            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/myoutput.cpp").waitFor();//这一句莫名其妙没跑起来
-            Runtime.getRuntime().exec("wsl ./r/a.out > r/ans.txt").waitFor();
-            System.out.println(new String(new FileInputStream("r/ans.txt").readAllBytes()));//中间语言验证结果输出到哪里
+
+            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp");
+            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out");
+
+
             /*AsmFn asmF = new AsmFn();
             new InstSelector(asmF).visitFn(f);
             new RegAlloc(asmF).work();

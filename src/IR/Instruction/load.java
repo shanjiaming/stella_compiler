@@ -12,8 +12,9 @@ public class load extends Statement {
 		super();
 		this.pointer = pointer;
 		this.reg = reg;
+		assert (pointer != null);
+		assert (reg != null);
 	}
-
-	@Override public String toString() {return "reg[" + reg.val + "]" + " = " + pointer;}
+	@Override public String toString() {return reg + " = " + pointer.memToString();}
 
 }

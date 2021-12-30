@@ -1,8 +1,6 @@
 package Frontend;
 
 import AST.*;
-import IR.Constant;
-import IR.Entity;
 import IR.PointerRegister;
 import IR.Register;
 import Util.*;
@@ -33,6 +31,11 @@ public class SemanticChecker extends ASTVisitor {
         };
         for (FuncDef funcDef : inlineFuncDefs) Type.addFuncType(funcDef, pos);
 
+        Type.STRING_TYPE.getClassDef().funcDefs.values().forEach(f -> {
+            f.parameterTypes.add(Type.STRING_TYPE);
+            f.parameterIdentifiers.add("this");
+        });
+
         for (ProgramUnit programUnit : it.programUnits) {
             ((ASTNode) programUnit).accept(this);
         }
@@ -47,6 +50,10 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(FuncDef it) {
+        if (currentClass != null) {
+            it.parameterTypes.add(Type.stringToType(currentClass.name));
+            it.parameterIdentifiers.add("this");
+        }
         int sz = it.parameterTypes.size();
         if (sz != it.parameterIdentifiers.size())
             throw new SemanticError("function parameters and identifiers numbers do not match", it.pos);
@@ -54,8 +61,10 @@ public class SemanticChecker extends ASTVisitor {
         for (int i = 0; i < sz; ++i) {
             currentScope.defineVariable(it.parameterIdentifiers.get(i), it.parameterTypes.get(i), it.pos);
             it.vars.add(new PointerRegister());
+            currentScope.addPointerRegister(it.parameterIdentifiers.get(i), it.vars.get(i));
         }
         currentFunc = it;
+        it.frameSize += 4 * sz;
         ((ASTNode) it.body).accept(this);
         if (!"main".equals(it.name) && it.returnType != null && currentReturnStmt == null)
             throw new SemanticError("no return statement in non void function", it.pos);
@@ -100,16 +109,20 @@ public class SemanticChecker extends ASTVisitor {
             currentScope.defineVariable(it.names.get(i), it.varType, it.pos);
             it.vars.add(new PointerRegister());
             currentScope.addPointerRegister(it.names.get(i), it.vars.get(i));
+            if (currentFunc != null) currentFunc.frameSize += 4;
         }
     }
 
     @Override
     public void visit(ConstructDef it) {
-        currentScope = new Scope(currentScope);
-        currentConstructDef = it;
-        it.body.accept(this);
-        currentConstructDef = null;
-        currentScope = currentScope.parentScope();
+        assert (currentClass != null);
+        it.proxyFunc = new FuncDef(it.pos, currentClass.name, it.body, null);
+        it.proxyFunc.accept(this);
+//        currentScope = new Scope(currentScope);
+//        currentConstructDef = it;
+//        it.body.accept(this);
+//        currentConstructDef = null;
+//        currentScope = currentScope.parentScope();
     }
 
     @Override
@@ -191,6 +204,7 @@ public class SemanticChecker extends ASTVisitor {
             throw new SemanticError("this statement outside class", it.pos);
         }
         it.type = Type.stringToType(currentClass.name);
+        it.entity = currentScope.getPointerRegister("this", true);
     }
 
     @Override
@@ -241,8 +255,7 @@ public class SemanticChecker extends ASTVisitor {
                     currentFunc.returnType != null && !currentFunc.returnType.equals(it.returnExpr.type))
                 throw new SemanticError("return type does not match with function declaration", it.pos);
             currentReturnStmt = it;
-        }
-        else if (currentConstructDef != null) {
+        } else if (currentConstructDef != null) {
             if (it.returnExpr != null)
                 throw new SemanticError("return type should be void in construct function", it.pos);
         }
@@ -255,19 +268,18 @@ public class SemanticChecker extends ASTVisitor {
         if (it.lhs.type.dim <= 0) throw new SemanticError(it.lhs.type + "cannot be indexed", it.pos);
         if (!Type.INT_TYPE.equals(it.rhs.type))
             throw new SemanticError("should use int to index, but use " + it.type, it.pos);
-        it.type = it.lhs.type.reduceDim();//TODO getelementptr need to think
+        it.type = it.lhs.type.reduceDim();
         it.entity = new PointerRegister();
     }
 
     @Override
     public void visit(MemberExpr it) {
         it.lhs.accept(this);
-        ClassDef classDef = Type.getClassDef(it.lhs.type);
+        ClassDef classDef = it.lhs.type.getClassDef();
         Type type = classDef.members.get(it.rhs.name);
         if (type == null) throw new SemanticError("no this name member variable", it.pos);
-        it.type = type;//TODO getelementptr need to think
+        it.type = type;
         it.entity = new PointerRegister();
-//        it.entity = currentScope.getRegister(it.name, true);
     }
 
     @Override
@@ -279,13 +291,13 @@ public class SemanticChecker extends ASTVisitor {
             it.type = Type.INT_TYPE;
             return;
         }
-        ClassDef classDef = Type.getClassDef(it.lhs.type);
-
+        ClassDef classDef = it.lhs.type.getClassDef();
+        it.argList.add(it.lhs);
         FuncDef func = classDef.funcDefs.get(it.name);
         if (func == null) throw new SemanticError("no this name function " + it.name, it.pos);
-        int argSize = it.argList.size();
+        int argSize = it.argList.size();//this
         if (argSize != func.parameterIdentifiers.size())
-            throw new SemanticError("function parameters and call parameters numbers do not match "+it.name, it.pos);
+            throw new SemanticError("function parameters and call parameters numbers do not match " + it.name, it.pos);
         for (int i = 0; i < argSize; ++i) {
             it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
@@ -293,37 +305,52 @@ public class SemanticChecker extends ASTVisitor {
         }
         it.type = func.returnType;
         it.entity = new Register();
+
+        it.proxyFuncCall = new FuncCallExpr(classDef.name + "__" + it.name);
+        it.proxyFuncCall.argList = it.argList;
+        it.proxyFuncCall.entity = it.entity;
     }
 
     @Override
     public void visit(FuncCallExpr it) {
-        if (currentClass != null){
+        if (currentClass != null) {
             try {
                 MemberFuncCallExpr memberFuncCallExpr = new MemberFuncCallExpr(it.pos, new ThisExpr(it.pos), it);
                 memberFuncCallExpr.accept(this);
                 it.type = memberFuncCallExpr.type;
+                it.name = currentClass.name + "__" + it.name;
+                it.entity = new Register();
                 return;
+            } catch (SemanticError ignored) {
             }
-            catch (SemanticError ignored){}
         }
         FuncDef func = Type.getFuncDef(it.name);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
-            throw new SemanticError("function parameters and call parameters numbers do not match "+it.name, it.pos);
+            throw new SemanticError("function parameters and call parameters numbers do not match " + it.name, it.pos);
         for (int i = 0; i < argSize; ++i) {
             it.argList.get(i).accept(this);
-            if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
-                throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
+            if (!it.argList.get(i).type.equals(func.parameterTypes.get(i))) {
+                throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place " + "funcdeftype = " + func.parameterTypes.get(i).typeName + " funccalltype = " + it.argList.get(i).type.typeName, it.pos);
+            }
         }
         it.type = func.returnType;
         it.entity = new Register();
     }
 
+    private VarExpr proxyvar;
     @Override
     public void visit(VarExpr it) {
+        if (it == proxyvar) return;
+        proxyvar = it;
         it.type = currentScope.getType(it.name, true);
         if (it.type == null) throw new SemanticError("variable not defined", it.pos);
-        it.entity = currentScope.getRegister(it.name, true);
+        if (currentClass != null && currentClass.members.containsKey(it.name)) {
+            ThisExpr thisExpr = new ThisExpr();
+            it.proxyThis = new MemberExpr(thisExpr, it);
+            it.proxyThis.accept(this);
+            it.entity = it.proxyThis.entity;
+        } else it.entity = currentScope.getPointerRegister(it.name, true);
     }
 
     //HACK actually, lambda and break would interfere with each other, but I guess it will not test.
@@ -366,7 +393,7 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(NewClassExpr it) {
-        if (Type.getClassDef(it.type) == null) throw new SemanticError("new class does not exist", it.pos);
+        if (it.type.getClassDef() == null) throw new SemanticError("new class does not exist", it.pos);
         it.entity = new Register();
     }
 

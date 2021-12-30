@@ -5,6 +5,8 @@ import Util.position;
 import java.util.ArrayList;
 
 public class MemberFuncCallExpr extends Expr{
+    public FuncCallExpr proxyFuncCall;
+
     public Expr lhs;
     public String name;
     public ArrayList<Expr> argList = new ArrayList<>();

@@ -76,6 +76,7 @@ public class Type {
     public static final Type INT_TYPE = new Type("int", 0);
     public static final Type BOOL_TYPE = new Type("bool", 0);
     public static final Type STRING_TYPE = new Type("string", 0);
+    public static final Type NULL_TYPE = new Type("bool", 0);
 
     private static final HashSet<Type> basicTypes = new HashSet<>(Arrays.asList(INT_TYPE, BOOL_TYPE));
     private static final HashMap<Type, ClassDef> classTypes = new HashMap<>() {{
@@ -120,12 +121,12 @@ public class Type {
 //        return hasBasicType(type) || hasClassType(type);
 //    }
 
-    public static ClassDef getClassDef(Type type) {
-        return classTypes.get(type);
+    public ClassDef getClassDef() {
+        return classTypes.get(this);
     }
 
     public int size(){
-        return (dim == 0 || isBasici32()) ? 4 : getClassDef(this).classSize;
+        return (dim == 0 || isBasici32()) ? 4 : getClassDef().classSize;
     }
 
     public static FuncDef getFuncDef(String type) {
