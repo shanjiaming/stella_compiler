@@ -1,5 +1,6 @@
 package IR.Instruction;
 
+import Backend.Pass;
 import IR.*;
 
 public class store extends Statement {
@@ -12,4 +13,7 @@ public class store extends Statement {
 	}
 	@Override public String toString() {
 		return pointer.memToString() + " = " + entity;}
+
+	@Override
+	public void accept(Pass visitor) {visitor.visit(this);}
 }

@@ -27,7 +27,9 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             }
             var varDef = programUnit.varDef();
             if (varDef != null) {
-                program.programUnits.add((VarDefStmt) visit(varDef));
+                VarDefStmt varDefStmt = (VarDefStmt)visit(varDef);
+                varDefStmt.isGlobal = true;
+                program.programUnits.add(varDefStmt);
             }
         });
         return program;
@@ -51,6 +53,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         ctx.funcDef().forEach(funcDef -> {
             FuncDef funcDef1 = (FuncDef) visit(funcDef);
             Type funcType = Type.stringToType(funcDef1.name);
+            funcDef1.parameterTypes.add(Type.stringToType(classDef.name));
+            funcDef1.parameterIdentifiers.add("this");
             if (classDef.funcDefs.containsKey(funcDef1.name))
                 throw new SemanticError("class has two same name function", pos);
             classDef.funcDefs.put(funcDef1.name, funcDef1);

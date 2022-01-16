@@ -1,5 +1,6 @@
 package IR.Instruction;
 
+import Backend.Pass;
 import IR.*;
 
 public class malloc extends Statement {
@@ -18,5 +19,8 @@ public class malloc extends Statement {
     }
 
     @Override public String toString() {return "ir_malloc(" + register + ", " + length + ")";}
+
+    @Override
+    public void accept(Pass visitor) {visitor.visit(this);}
 
 }

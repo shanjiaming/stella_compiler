@@ -1,5 +1,7 @@
 package IR.Instruction;
 
+import AST.ASTVisitor;
+import Backend.Pass;
 import IR.Constant;
 import IR.Entity;
 import IR.Register;
@@ -48,4 +50,7 @@ public class binary extends Statement {
     }
 
     @Override public String toString() {return lhs + " = " + op1 + op + op2;}
+
+    @Override
+    public void accept(Pass visitor) {visitor.visit(this);}
 }

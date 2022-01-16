@@ -1,5 +1,6 @@
 package IR.Instruction;
 
+import Backend.Pass;
 import IR.BasicBlock;
 import IR.Entity;
 import IR.terminalStmt;
@@ -14,4 +15,7 @@ public class branch extends terminalStmt {
         this.falseBranch = falseBranch;
     }
     @Override public String toString() {return "if(" + op + ") goto " + trueBranch.name + "; else goto " + falseBranch.name;}
+
+    @Override
+    public void accept(Pass visitor) {visitor.visit(this);}
 }

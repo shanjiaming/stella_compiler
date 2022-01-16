@@ -23,24 +23,14 @@ public class BasicBlock {
 
     public void push_back(Statement stmt) {
         stmts.add(stmt);
-        if(stmt instanceof terminalStmt){
-            assert (tailStmt == null);
-            tailStmt = (terminalStmt) stmt;
-        }
+//        if(stmt instanceof terminalStmt){
+//            assert (tailStmt == null);
+//            tailStmt = (terminalStmt) stmt;
+//        }
     }
 
     public ArrayList<Statement> stmts() {
         return new ArrayList<>(stmts);
     }
 
-    public ArrayList<BasicBlock> successors() {
-        ArrayList<BasicBlock> ret = new ArrayList<>();
-        if (tailStmt instanceof branch) {
-            ret.add(((branch) tailStmt).trueBranch);
-            ret.add(((branch) tailStmt).falseBranch);
-        } else if (tailStmt instanceof jump) {
-            ret.add(((jump) tailStmt).destination);
-        }
-        return ret;
-    }
 }

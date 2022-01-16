@@ -1,5 +1,6 @@
 package IR.Instruction;
 
+import Backend.Pass;
 import IR.Entity;
 import IR.PointerRegister;
 import IR.Register;
@@ -12,9 +13,18 @@ public class load extends Statement {
 		super();
 		this.pointer = pointer;
 		this.reg = reg;
-		assert (pointer != null);
-		assert (reg != null);
+		if(pointer == null){
+			System.out.println("ohno ini nullmem!");
+		}
 	}
-	@Override public String toString() {return reg + " = " + pointer.memToString();}
+	@Override public String toString() {
+		if(pointer == null){
+			System.out.println("nullmempointer");
+		}
+		return reg + " = " + pointer.memToString();
+	}
+
+	@Override
+	public void accept(Pass visitor) {visitor.visit(this);}
 
 }

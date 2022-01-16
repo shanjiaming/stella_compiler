@@ -16,6 +16,7 @@ public class Register extends Entity {
     public static Register s0 = new Register("s0");
     public static Register ra = new Register("ra");
     public static Register a0 = new Register("a0");
+    public static Register zero = new Register("zero");
 
     @Override public String toString() {return "reg[" + val + "]";}
 

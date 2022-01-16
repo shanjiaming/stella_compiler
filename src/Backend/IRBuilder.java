@@ -19,6 +19,10 @@ public class IRBuilder extends ASTVisitor {
     private Stack<BasicBlock> breakTo = new Stack<>();
     private int s0Const;
 
+    private void memlize(Register register){
+
+    }
+
     public IRBuilder(IREntry irEntry) {
         this.irEntry = irEntry;
     }
@@ -43,11 +47,13 @@ public class IRBuilder extends ASTVisitor {
         irEntry.functions.add(fn);
         int globalSize = 0;
         for (VarDefStmt i : globalVars) {
-            i.accept(this);
             globalSize += 4;
         }
-        currentBasicBlock.push_back(new li(Register.sp, new Constant(globalSize)));
-        currentBasicBlock.push_back(new call("main"));
+        currentBasicBlock.push_back(new loadinst(Register.sp, new Constant(-globalSize)));
+        for (VarDefStmt i : globalVars) {
+            i.accept(this);
+        }
+        currentBasicBlock.push_back(new callfunc("main"));
         for (FuncDef i : funcDefs) {
             i.accept(this);
         }
@@ -98,7 +104,7 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new load(raPointer, Register.ra));
         currentBasicBlock.push_back(new binary(Register.sp, Register.sp, new Constant(it.frameSize), "+"));
-        currentBasicBlock.push_back(new ret());
+        currentBasicBlock.push_back(new reter());
     }
 
     @Override
@@ -117,10 +123,11 @@ public class IRBuilder extends ASTVisitor {
     @Override
     public void visit(ReturnStmt it) {
         //TODO 要store到一个地方去，如sp。但是用专门寄存器保存也非常ok。用永久寄存器吧，那么现在有两个永久寄存器，sp和ret。
-        it.returnExpr.accept(this);
+
         if (it.returnExpr != null) {
+            it.returnExpr.accept(this);
             currentBasicBlock.push_back(new store(PointerRegister.min12, it.returnExpr.entity));
-            currentBasicBlock.push_back(new mv(Register.a0, it.returnExpr.entity));
+            currentBasicBlock.push_back(new move(Register.a0, it.returnExpr.entity));
         }
         currentBasicBlock.push_back(new jump(returnBlock));
     }
@@ -177,7 +184,6 @@ public class IRBuilder extends ASTVisitor {
                 it.entity = new Constant(Integer.parseInt(it.value));//大整数注意
             if (Type.BOOL_TYPE.equals(it.type))
                 it.entity = new Constant("true".equals(it.value) ? 1 : 0);
-            assert (false);
         } else if (Type.STRING_TYPE.equals(it.type)) {//String
             PointerRegister pointerRegister = new PointerRegister();
             it.entity = new Constant(irEntry.stringpool.size());//这必然是大整数
@@ -214,8 +220,8 @@ public class IRBuilder extends ASTVisitor {
             Statement trueAssign, falseAssign;
             BasicBlock trueBranch = new BasicBlock("short_path_trueBranch"), falseBranch = new BasicBlock("short_path_falseBranch"), destination = new BasicBlock("short_path_destination");
             if ("||".equals(it.op)) {
-                trueAssign = new li((Register) it.entity, new Constant(1));
-                falseAssign = new mv((Register) it.entity, (Register) it.rhs.entity);
+                trueAssign = new loadinst((Register) it.entity, new Constant(1));
+                falseAssign = new move((Register) it.entity, (Register) it.rhs.entity);
                 currentBasicBlock.push_back(new branch(it.lhs.entity, trueBranch, falseBranch));
                 currentBasicBlock = trueBranch;
                 currentBasicBlock.push_back(trueAssign);
@@ -225,8 +231,8 @@ public class IRBuilder extends ASTVisitor {
                 currentBasicBlock.push_back(falseAssign);
                 currentBasicBlock.push_back(new jump(destination));
             } else {
-                trueAssign = new mv((Register) it.entity, (Register) it.rhs.entity);
-                falseAssign = new li((Register) it.entity, new Constant(0));
+                trueAssign = new move((Register) it.entity, (Register) it.rhs.entity);
+                falseAssign = new loadinst((Register) it.entity, new Constant(0));
                 currentBasicBlock.push_back(new branch(it.lhs.entity, trueBranch, falseBranch));
                 currentBasicBlock = trueBranch;
                 it.rhs.accept(this);
@@ -263,7 +269,7 @@ public class IRBuilder extends ASTVisitor {
     public void visit(UnaryExpr it) {
         it.lhs.accept(this);
         switch (it.op) {
-            case "+" -> currentBasicBlock.push_back(new mv((Register) it.entity, it.lhs.entity));
+            case "+" -> currentBasicBlock.push_back(new move((Register) it.entity, it.lhs.entity));
             case "-" -> currentBasicBlock.push_back(new binary((Register) it.entity, new Constant(0), it.lhs.entity, "-"));
             case "~" -> currentBasicBlock.push_back(new binary((Register) it.entity, new Constant(-1), it.lhs.entity, "-"));
             case "!" -> currentBasicBlock.push_back(new binary((Register) it.entity, new Constant(1), it.lhs.entity, "^"));
@@ -276,7 +282,7 @@ public class IRBuilder extends ASTVisitor {
         assert (Type.INT_TYPE.equals(it.lhs.type));
 //        Register register = new Register();
 //        currentBasicBlock.push_back(new load((PointerRegister) it.lhs.entity, (Register) it.lhs.entity));
-        currentBasicBlock.push_back(new binary((Register) it.lhs.entity, it.lhs.entity, new Constant(1), "+"));
+        currentBasicBlock.push_back(new binary((Register) it.lhs.entity, it.lhs.entity, new Constant(1), it.op.substring(1)));
         currentBasicBlock.push_back(new store((PointerRegister) it.lhs.entity, it.lhs.entity));
     }
 
@@ -284,8 +290,8 @@ public class IRBuilder extends ASTVisitor {
     public void visit(SuffixExpr it) {
         it.lhs.accept(this);
         assert (Type.INT_TYPE.equals(it.lhs.type));
-        currentBasicBlock.push_back(new mv((Register) it.entity, (Register) it.lhs.entity));
-        currentBasicBlock.push_back(new binary((Register) it.lhs.entity, it.lhs.entity, new Constant(1), "+"));
+        currentBasicBlock.push_back(new move((Register) it.entity, (Register) it.lhs.entity));
+        currentBasicBlock.push_back(new binary((Register) it.lhs.entity, it.lhs.entity, new Constant(1), it.op.substring(1)));
         currentBasicBlock.push_back(new store((PointerRegister) it.lhs.entity, it.lhs.entity));
     }
 
@@ -300,20 +306,20 @@ public class IRBuilder extends ASTVisitor {
     public void visit(NewArrayExpr it) {
 //        ClassDef classDef = it.type.getClassDef();
         it.dims.forEach(dim -> dim.accept(this));
-        PointerRegister p = new PointerRegister();
-        currentBasicBlock.push_back(new malloc(p, it.dims.size() + 1));
-        p.address = 0;
+        Register r = new Register();
+        currentBasicBlock.push_back(new malloc(r, 4*(it.dims.size() + 1)));
+        PointerRegister p = new PointerRegister(0,r);
         currentBasicBlock.push_back(new store(p, new Constant(it.dims.size())));
         for (Expr dim : it.dims){
             p.address += 4;
-            currentBasicBlock.push_back(new store(p, dim.entity));
+            currentBasicBlock.push_back(new store(new PointerRegister(p.address, r), dim.entity));
         }
         p.address = 0;
-
+//        currentBasicBlock.push_back(new load(p,p));
         int spConst = -12;
 
         PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);
-        currentBasicBlock.push_back(new store(pointerRegister, p));
+        currentBasicBlock.push_back(new store(pointerRegister, r));
 
         PointerRegister pointerRegister2 = new PointerRegister(spConst -= 4, Register.sp);
         currentBasicBlock.push_back(new store(pointerRegister2, it.entity));
@@ -321,9 +327,10 @@ public class IRBuilder extends ASTVisitor {
         PointerRegister pointerRegister3 = new PointerRegister(spConst -= 4, Register.sp);
         currentBasicBlock.push_back(new store(pointerRegister3, new Constant(4)));
 
-        currentBasicBlock.push_back(new call("ir_new_array"));
+        currentBasicBlock.push_back(new callfunc("ir_new_array"));
+        currentBasicBlock.push_back(new load(pointerRegister2, (Register) it.entity));
 
-        FuncCallExpr funcCallExpr = new FuncCallExpr("ir_new_array");
+//        FuncCallExpr funcCallExpr = new FuncCallExpr("ir_new_array");
 
 //        for(int offset = 0;)
 //
@@ -354,9 +361,12 @@ public class IRBuilder extends ASTVisitor {
 
         fn.basicBlocks.add(cond);
         currentBasicBlock = cond;
-        if (it.cond != null) it.cond.accept(this);
-        currentBasicBlock.push_back(new branch(it.cond.entity, body, dest));
-
+        if (it.cond != null) {
+            it.cond.accept(this);
+            currentBasicBlock.push_back(new branch(it.cond.entity, body, dest));
+        }else{
+            currentBasicBlock.push_back(new jump(body));
+        }
         fn.basicBlocks.add(body);
         currentBasicBlock = body;
         if (it.body != null) {
@@ -398,12 +408,17 @@ public class IRBuilder extends ASTVisitor {
     public void visit(IndexExpr it) {
         it.lhs.accept(this);
         it.rhs.accept(this);
+
+        Register pointeroffset = new Register();
+
         PointerRegister pointerRegister = (PointerRegister)it.entity;
         pointerRegister.address = 0;
-        PointerRegister pointeroffset = new PointerRegister();
-        currentBasicBlock.push_back(new binary(pointerRegister, it.lhs.entity, it.rhs.entity, "+"));
         pointerRegister.offset = pointeroffset;
+        Register temp4 = new Register();
+        currentBasicBlock.push_back(new binary(temp4, it.rhs.entity, new Constant(2), "<<"));
+        currentBasicBlock.push_back(new binary(pointeroffset, it.lhs.entity, temp4, "+"));
         currentBasicBlock.push_back(new load(pointerRegister, pointerRegister));
+
     }
 
     @Override
@@ -430,8 +445,8 @@ public class IRBuilder extends ASTVisitor {
             PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);
             currentBasicBlock.push_back(new store(pointerRegister, expr.entity));
         };
-        currentBasicBlock.push_back(new call(it.name));
-        currentBasicBlock.push_back(new mv((Register) it.entity, Register.a0));
+        currentBasicBlock.push_back(new callfunc(it.name));
+        currentBasicBlock.push_back(new move((Register) it.entity, Register.a0));
     }
 
     @Override
@@ -473,6 +488,8 @@ public class IRBuilder extends ASTVisitor {
 
     @Override
     public void visit(MemberFuncCallExpr it) {
+        if(it.proxyFuncCall == null)
+            System.out.println(it.name);
         it.proxyFuncCall.accept(this);
     }
 

@@ -11,6 +11,7 @@ public class VarDefStmt extends Stmt implements ProgramUnit{
     public ArrayList<String> names = new ArrayList<>();
     public ArrayList<Expr> init = new ArrayList<>();
     public ArrayList<PointerRegister> vars = new ArrayList<>();
+    public boolean isGlobal = false;
 
     public VarDefStmt(Type varType) {
         this.varType = varType;

@@ -50,10 +50,10 @@ public class SemanticChecker extends ASTVisitor {
 
     @Override
     public void visit(FuncDef it) {
-        if (currentClass != null) {
-            it.parameterTypes.add(Type.stringToType(currentClass.name));
-            it.parameterIdentifiers.add("this");
-        }
+//        if (currentClass != null) {
+//            it.parameterTypes.add(Type.stringToType(currentClass.name));
+//            it.parameterIdentifiers.add("this");
+//        }
         int sz = it.parameterTypes.size();
         if (sz != it.parameterIdentifiers.size())
             throw new SemanticError("function parameters and identifiers numbers do not match", it.pos);
@@ -107,16 +107,23 @@ public class SemanticChecker extends ASTVisitor {
                 if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
             }
             currentScope.defineVariable(it.names.get(i), it.varType, it.pos);
-            it.vars.add(new PointerRegister());
+            PointerRegister p = new PointerRegister();
+            if (it.isGlobal) p.offset = Register.zero;
+            it.vars.add(p);
             currentScope.addPointerRegister(it.names.get(i), it.vars.get(i));
             if (currentFunc != null) currentFunc.frameSize += 4;
         }
     }
 
+    private ConstructDef isvisiting;
     @Override
     public void visit(ConstructDef it) {
+        if(isvisiting == it) return;
+        isvisiting = it;
         assert (currentClass != null);
         it.proxyFunc = new FuncDef(it.pos, currentClass.name, it.body, null);
+        it.proxyFunc.parameterIdentifiers.add("this");
+        it.proxyFunc.parameterTypes.add(Type.stringToType(currentClass.name));
         it.proxyFunc.accept(this);
 //        currentScope = new Scope(currentScope);
 //        currentConstructDef = it;
@@ -205,6 +212,9 @@ public class SemanticChecker extends ASTVisitor {
         }
         it.type = Type.stringToType(currentClass.name);
         it.entity = currentScope.getPointerRegister("this", true);
+        if(it.entity == null){
+            System.out.println("not find this");
+        }
     }
 
     @Override
@@ -288,21 +298,29 @@ public class SemanticChecker extends ASTVisitor {
         if (it.lhs.type.dim > 0) {
             if (!("size".equals(it.name) && it.argList.size() == 0))
                 throw new SemanticError("not qualified to use array size function", it.pos);
+
+            it.argList.add(it.lhs);
             it.type = Type.INT_TYPE;
+            it.entity = new Register();
+
+            it.proxyFuncCall = new FuncCallExpr( "array__size");
+            it.proxyFuncCall.argList = it.argList;
+            it.proxyFuncCall.entity = it.entity;
+
             return;
         }
         ClassDef classDef = it.lhs.type.getClassDef();
-        it.argList.add(it.lhs);
         FuncDef func = classDef.funcDefs.get(it.name);
         if (func == null) throw new SemanticError("no this name function " + it.name, it.pos);
         int argSize = it.argList.size();//this
-        if (argSize != func.parameterIdentifiers.size())
-            throw new SemanticError("function parameters and call parameters numbers do not match " + it.name, it.pos);
+        if (argSize != func.parameterIdentifiers.size() - 1)
+            throw new SemanticError("function parameters and call parameters numbers do not match " + it.name + argSize + func.parameterIdentifiers.size(), it.pos);
         for (int i = 0; i < argSize; ++i) {
             it.argList.get(i).accept(this);
             if (!it.argList.get(i).type.equals(func.parameterTypes.get(i)))
                 throw new SemanticError("function parameters and call parameters type do not match in " + i + "th place", it.pos);
         }
+        it.argList.add(it.lhs);
         it.type = func.returnType;
         it.entity = new Register();
 
@@ -325,6 +343,7 @@ public class SemanticChecker extends ASTVisitor {
             }
         }
         FuncDef func = Type.getFuncDef(it.name);
+        if(func == null) System.out.println(it.name);
         int argSize = it.argList.size();
         if (argSize != func.parameterIdentifiers.size())
             throw new SemanticError("function parameters and call parameters numbers do not match " + it.name, it.pos);

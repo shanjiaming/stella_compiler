@@ -6,6 +6,9 @@
 //import Backend.*;
 
 import AST.Program;
+import Asm.AsmEntry;
+import Backend.AsmBuilder;
+import Backend.AsmPrinter;
 import Backend.IRBuilder;
 import Backend.IRPrinter;
 import Frontend.ASTBuilder;
@@ -55,21 +58,22 @@ public class Main {
 
             IREntry f = new IREntry();
             new IRBuilder(f).visit(ASTRoot);
+
+//            AsmEntry a = new AsmEntry();
+//            AsmBuilder asmBuilder = new AsmBuilder(f, a);
+//            new AsmPrinter(a, output).run();
+
+
             new IRPrinter(f, output).run();
-
-//            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
-//            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
-//            Runtime.getRuntime().exec("wsl rm r/a.out");
+            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
+            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
 
 
-            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp");
-            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out");
+//            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
+//            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();
 
+            Runtime.getRuntime().exec("wsl rm r/a.out");
 
-            /*AsmFn asmF = new AsmFn();
-            new InstSelector(asmF).visitFn(f);
-            new RegAlloc(asmF).work();
-            new AsmPrinter(asmF, System.out).print();*/
 //            System.out.println("Success");
         } catch (Exception er) {
 //            System.err.println(er);
