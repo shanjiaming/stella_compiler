@@ -13,6 +13,6 @@ public class li extends AsmStmt {
         this.inst = inst;
     }
 
-    @Override public String toString() {return "li " + reg + " " + inst;}
+    @Override public String toString() {return "li " + reg + ", " + inst;}
 
 }

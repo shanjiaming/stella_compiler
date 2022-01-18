@@ -12,5 +12,5 @@ public class beqz extends AsmStmt {
         this.op = op;
         this.trueBranch = trueBranch;
     }
-    @Override public String toString() {return "bnez " + op + " " + trueBranch;}
+    @Override public String toString() {return "beqz " + op + ", " + trueBranch;}
 }

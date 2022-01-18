@@ -19,9 +19,11 @@ public class SemanticChecker extends ASTVisitor {
     private int previouss0;
     private int programframesize = 16;
     private void assignaddress(PointerRegister p){
+        if (!p.isGlobal) {
         p.address = (s0Const -= 4);
         if(currentFunc != null) currentFunc.frameSize += 4;
         else programframesize += 4;
+        }
     }
 
 
@@ -120,8 +122,9 @@ public class SemanticChecker extends ASTVisitor {
                 if (!it.varType.equals(expr.type)) throw new SemanticError("initialize type not match", it.pos);
             }
             currentScope.defineVariable(it.names.get(i), it.varType, it.pos);
-            PointerRegister p = new PointerRegister();
-            if (it.isGlobal) p.offset = Register.zero;
+            PointerRegister p;
+            if (it.isGlobal) p = new PointerRegister(it.names.get(i), true);
+            else p = new PointerRegister();
             it.vars.add(p);
             currentScope.addPointerRegister(it.names.get(i), it.vars.get(i));
             assignaddress(p);

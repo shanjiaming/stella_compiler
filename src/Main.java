@@ -38,11 +38,12 @@ public class Main {
 //        testcaseName = "sema\\misc-package\\misc-6.mx";
 //        String name = "src/testcases/" + testcaseName;
 //        InputStream input = new FileInputStream(name);
-//        InputStream input = System.in;
+        InputStream input = System.in;
 //        OutputStream output = System.out;
 //        InputStream input = new FileInputStream("src/testcases/codegen/e9.mx");
-        InputStream input = new FileInputStream("r/test.mx");
-        OutputStream output = new FileOutputStream("r/ir.cpp");//中间语言输出到哪里
+//        InputStream input = new FileInputStream("asm/test.mx");
+        OutputStream output = new FileOutputStream("output.s");
+//        OutputStream output = new FileOutputStream("asm/test.s");//汇编语言输出到哪里
 
         try {
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -59,15 +60,18 @@ public class Main {
             IREntry f = new IREntry();
             new IRBuilder(f).visit(ASTRoot);
 
-//            AsmEntry a = new AsmEntry();
-//            AsmBuilder asmBuilder = new AsmBuilder(f, a);
-//            new AsmPrinter(a, output).run();
+            AsmEntry a = new AsmEntry();
+            AsmBuilder asmBuilder = new AsmBuilder(f, a);
+            new AsmPrinter(a, output).run();
+//            Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").waitFor();
 
+//            System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
+//            System.out.print(new String(Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").getErrorStream().readAllBytes()));
 
-            new IRPrinter(f, output).run();
+//            new IRPrinter(f, output).run();
 
-            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
-            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
+//            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
+//            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
 
 //            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
 //            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();

@@ -17,14 +17,20 @@ public class Reg {
     public static Reg a5 = new Reg("a5");
     public static Reg a6 = new Reg("a6");
     public static Reg a7 = new Reg("a7");
-    public static Reg dest = new Reg("dest");
-    public static Reg op1 = new Reg("op1");
-    public static Reg op2 = new Reg("op2");
-    public static Reg index = new Reg("index");
+    public static Reg dest = new Reg("t0");
+    public static Reg op1 = new Reg("t1");
+    public static Reg op2 = new Reg("t2");
+    public static Reg index = new Reg("t3");
+    //t4 在sw global的时候也用到了
     public static Reg zero = new Reg("zero");
 
 
     public Reg(String name){
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

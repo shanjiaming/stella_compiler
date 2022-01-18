@@ -11,7 +11,7 @@ public class BasicBlock {
 
 
     private ArrayList<Statement> stmts = new ArrayList<>();
-    private terminalStmt tailStmt = null;
+    public terminalStmt tailStmt = null;
 
     private static int counter = 0;
     public String name;
@@ -24,10 +24,10 @@ public class BasicBlock {
 
     public void push_back(Statement stmt) {
         stmts.add(stmt);
-//        if(stmt instanceof terminalStmt){
-//            assert (tailStmt == null);
-//            tailStmt = (terminalStmt) stmt;
-//        }
+        if(stmt instanceof terminalStmt){
+            assert (tailStmt == null);
+            tailStmt = (terminalStmt) stmt;
+        }
     }
 
     public ArrayList<Statement> stmts() {

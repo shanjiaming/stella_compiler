@@ -38,28 +38,47 @@ public class AsmPrinter extends AsmPass {
 
 
     @Override
-    public void visit(AsmEntry AsmEntry) {
-        println("\t.text");
+    public void visit(AsmEntry asmEntry) {
+        println("\t.text\n");
+
+        int i = 0;
+        for(var s : asmEntry.globalpool){
+            println("\t.type\t"+s+",@object");
+            println("\t.comm\t"+s+",4,4");
+            println();
+            ++i;
+        }
+        println();
     }
 
     @Override
     public void visit(AsmFunction function) {
-        println("\t.globl " + function.fnAsmBasicBlock.name + "\t\t\t\t\t\t## -- Begin function " + function.fnAsmBasicBlock.name);
+        println("\t.globl " + function.asmBasicBlocks.get(0).name + "\t\t\t\t\t\t# -- Begin function " + function.asmBasicBlocks.get(0).name);
     }
 
     @Override
     public void visit(AsmBasicBlock basicBlock) {
-        println("\t" + basicBlock.name + " :");
+        println(basicBlock.name + ":");
     }
 
     @Override
     public void visit(AsmStmt statement) {
-        println(statement.toString());
+        println("\t" + statement.toString());
     }
 
     @Override
-    public void exitvisit(AsmEntry AsmEntry) {
-        super.exitvisit(AsmEntry);
+    public void exitvisit(AsmEntry asmEntry) {
+        int i = 0;
+        println("\t.section\t.rodata.str1.1,\"aMS\",@progbits,1");
+        for(var s : asmEntry.stringpool){
+            println("str_" + i + ":");
+            println("\t.asciz\t" + s);
+            println();
+            ++i;
+        }
+
+        pWriter.println(outstr);
+        pWriter.flush();
     }
 
     @Override

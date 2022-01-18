@@ -21,6 +21,7 @@ public class IRBuilder extends ASTVisitor {
         this.irEntry = irEntry;
     }
 
+    private boolean isGlobal = false;
 
     @Override
     public void visit(Program it) {
@@ -37,15 +38,27 @@ public class IRBuilder extends ASTVisitor {
             if (programUnit instanceof VarDefStmt)
                 globalVars.add((VarDefStmt) programUnit);
         });
-        currentBasicBlock = new BasicBlock("initialize");
-        fn = new Function("initialize", currentBasicBlock);
+        currentBasicBlock = new BasicBlock("init");
+        fn = new Function("init", currentBasicBlock);
         irEntry.functions.add(fn);
-        currentBasicBlock.push_back(new loadrinst(Register.sp, -it.globalframesize));
-        currentBasicBlock.push_back(new loadrinst(Register.s0, 0));
+        currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.globalframesize));
+        PointerRegister raPointer = new PointerRegister(it.globalframesize - 4, Register.sp);
+        PointerRegister s0Pointer = new PointerRegister(it.globalframesize - 8, Register.sp);
+        currentBasicBlock.push_back(new store(raPointer, Register.ra));
+        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.globalframesize));
+
+//        currentBasicBlock.push_back(new loadrinst(Register.s0, 0));
+        isGlobal = true;
         for (VarDefStmt i : globalVars) {
             i.accept(this);
         }
-        currentBasicBlock.push_back(new callfunc("main"));
+        isGlobal = false;
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(raPointer, Register.ra));
+        currentBasicBlock.push_back(new addri(Register.sp, Register.sp, it.globalframesize));
+        currentBasicBlock.push_back(new reter());
+
         for (FuncDef i : funcDefs) {
             i.accept(this);
         }
@@ -82,8 +95,17 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new store(raPointer, Register.ra));
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.frameSize));
+        if("main".equals(it.name)){
+            currentBasicBlock.push_back(new callfunc("init"));
+        }
 
         it.body.stmts.forEach(s -> s.accept(this));
+        if(currentBasicBlock.tailStmt == null){
+            if (Type.INT_TYPE.equals(it.returnType)) {
+                currentBasicBlock.push_back(new loadrinst(Register.a0, 0));
+            }
+            currentBasicBlock.push_back(new jump(returnBlock));
+        }
         currentBasicBlock = returnBlock;
         fn.basicBlocks.add(returnBlock);
         if (it.returnType != null) {
@@ -100,6 +122,7 @@ public class IRBuilder extends ASTVisitor {
         int sz = it.names.size();
         for (int i = 0; i < sz; ++i) {
             PointerRegister pointerRegister = it.vars.get(i);
+            if(pointerRegister.isGlobal) irEntry.globalpool.add(pointerRegister.val);
             if (it.init.get(i) != null) {
                 it.init.get(i).accept(this);
                 currentBasicBlock.push_back(new move(pointerRegister, it.init.get(i).pointerRegister));
@@ -177,7 +200,9 @@ public class IRBuilder extends ASTVisitor {
             assert (Type.NULL_TYPE.equals(it.type));
             i = 0;
         }
-        currentBasicBlock.push_back(new loadinst(it.pointerRegister, i));
+        if (Type.STRING_TYPE.equals(it.type) )
+        currentBasicBlock.push_back(new move(it.pointerRegister, new PointerRegister("str_" + (irEntry.stringpool.size() - 1) ,true)));
+        else currentBasicBlock.push_back(new loadinst(it.pointerRegister, i));
     }
 
     @Override

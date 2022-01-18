@@ -13,6 +13,6 @@ public class mv extends AsmStmt {
         this.reg = reg;
     }
 
-    @Override public String toString() {return "mv " + dest + " " + reg;}
+    @Override public String toString() {return "mv " + dest + ", " + reg;}
 
 }

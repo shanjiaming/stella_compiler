@@ -9,11 +9,16 @@ public class PointerRegister extends Entity {
         super();
     }
 
-
+    public boolean isGlobal = false;
 
     public PointerRegister(String name) {
         super();
         val += "/*" + name + "*/";
+    }
+    public PointerRegister(String name, boolean isGlobal) {
+        super();
+        val = name;
+        this.isGlobal = isGlobal;
     }
     public PointerRegister(int val) {
         super();

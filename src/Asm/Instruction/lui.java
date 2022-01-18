@@ -11,6 +11,6 @@ public class lui extends AsmStmt {
         this.inst = inst;
     }
 
-    @Override public String toString() {return "lui " + reg + " " + inst;}
+    @Override public String toString() {return "lui " + reg + ", " + inst;}
 
 }

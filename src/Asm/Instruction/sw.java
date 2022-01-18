@@ -12,7 +12,7 @@ public class sw extends AsmStmt {
 		this.addr = addr;
 	}
 	@Override public String toString() {
-		return "sw " + reg + " " + addr;
+		return "sw " + reg + ", " + addr + ((addr.globalName == null) ? "" : ", t4");
 	}
 
 }

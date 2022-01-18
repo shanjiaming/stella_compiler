@@ -5,11 +5,14 @@ import Asm.Instruction.*;
 import IR.*;
 import IR.Instruction.*;
 
+import java.util.ArrayList;
+
 public class AsmBuilder extends Pass {
 
     public AsmEntry asmEntry;
     public AsmFunction asmFunction;
     public AsmBasicBlock asmBasicBlock;
+
 
     public AsmBuilder(IREntry irEntry, AsmEntry asmEntry) {
         super(irEntry);
@@ -17,6 +20,8 @@ public class AsmBuilder extends Pass {
         for(var i : irEntry.functions){
             visit(i);
         }
+        asmEntry.stringpool = irEntry.stringpool;
+        asmEntry.globalpool = irEntry.globalpool;
     }
 
     private Reg RegisterToReg(Register register){
@@ -37,6 +42,7 @@ public class AsmBuilder extends Pass {
     }
 
     private Addr pointerRegisterToAddr(PointerRegister pointerRegister){
+        if(pointerRegister.isGlobal) return new Addr(pointerRegister.val);
         return new Addr(pointerRegister.address, RegisterToReg(pointerRegister.offset));
     }
 
@@ -51,7 +57,20 @@ public class AsmBuilder extends Pass {
 
     @Override
     public void visit(Statement it) {
-        it.accept(this);
+        if(it instanceof addri) visit((addri) it);
+        else if(it instanceof binary) visit((binary) it);
+        else if(it instanceof binaryi) visit((binaryi) it);
+        else if(it instanceof branch) visit((branch) it);
+        else if(it instanceof callfunc) visit((callfunc) it);
+        else if(it instanceof jump) visit((jump) it);
+        else if(it instanceof load) visit((load) it);
+        else if(it instanceof loadinst) visit((loadinst) it);
+        else if(it instanceof loadrinst) visit((loadrinst) it);
+        else if(it instanceof malloci) visit((malloci) it);
+        else if(it instanceof move) visit((move) it);
+        else if(it instanceof reter) visit((reter) it);
+        else if(it instanceof store) visit((store) it);
+        else assert (false);
     }
 
     @Override
@@ -62,6 +81,7 @@ public class AsmBuilder extends Pass {
             asmFunction.asmBasicBlocks.add(asmBasicBlock);
             if(asmFunction.fnAsmBasicBlock == null) asmFunction.fnAsmBasicBlock = asmBasicBlock;
         }
+        asmEntry.functions.add(asmFunction);
     }
 
     @Override
@@ -92,6 +112,10 @@ public class AsmBuilder extends Pass {
         srp(Reg.dest, it.lhs);
 
 //        }
+    }
+
+    public void visit(addri it) {
+        asmBasicBlock.push_back(new asmbinaryi(RegisterToReg(it.lhs), RegisterToReg(it.op1), it.op2, "+"));
     }
 
     public void visit(binaryi it) {

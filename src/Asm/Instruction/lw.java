@@ -13,7 +13,11 @@ public class lw extends AsmStmt {
 		this.addr = addr;
 	}
 	@Override public String toString() {
-		return "lw " + reg + " " + addr;
+		if(addr.globalName != null && addr.globalName.length() >= 4 && "str_".equals(addr.globalName.substring(0,4))){
+			return "lui " + reg + ", %hi(" + addr.globalName + ")\n\taddi "+reg+", "+reg+", %lo(" + addr.globalName + ")";
+		}
+		else
+		return "lw " + reg + ", " + addr;
 	}
 
 }

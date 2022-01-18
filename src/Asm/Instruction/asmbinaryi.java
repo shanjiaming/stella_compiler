@@ -20,6 +20,6 @@ public class asmbinaryi extends AsmStmt {
     }
 
 
-    @Override public String toString() {return op + " " + lhs + " " + op1 + " " + op2;}
+    @Override public String toString() {return op + " " + lhs + ", " + op1 + ", " + op2;}
 
 }
