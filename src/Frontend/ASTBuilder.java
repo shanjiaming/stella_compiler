@@ -89,20 +89,19 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitIfStmt(IfStmtContext ctx) {
-        return new IfStmt(new position(ctx), (Expr) visit(ctx.expr()), (Stmt) visit(ctx.stmt(0)), ctx.stmt(1) == null ? null : (Stmt) visit(ctx.stmt(1)));//HACK shoubld use statement without {} here
+        return new IfStmt(new position(ctx), (Expr) visit(ctx.expr()), (Stmt) visit(ctx.stmt(0)), ctx.stmt(1) == null ? null : (Stmt) visit(ctx.stmt(1)));
     }
 
 
     @Override
     public ASTNode visitForStmt(ForStmtContext ctx) {
-        return new ForStmt(new position(ctx), ctx.forInit == null ? null : (Expr) visit(ctx.forInit), ctx.forCondition == null ? null : (Expr) visit(ctx.forCondition), ctx.forIncrease == null ? null : (Expr) visit(ctx.forIncrease), (Stmt) visit(ctx.stmt()));//HACK shoubld use statement without {} here
+        return new ForStmt(new position(ctx), ctx.forInit == null ? null : (Expr) visit(ctx.forInit), ctx.forCondition == null ? null : (Expr) visit(ctx.forCondition), ctx.forIncrease == null ? null : (Expr) visit(ctx.forIncrease), (Stmt) visit(ctx.stmt()));
     }
 
 
     @Override
     public ASTNode visitWhileStmt(WhileStmtContext ctx) {
-        return new ForStmt(new position(ctx), null, (Expr) visit(ctx.expr()), null, (Stmt) visit(ctx.stmt()));//HACK shoubld use statement without {} here
-        //HACK only use one statement, did not define expr','expr
+        return new ForStmt(new position(ctx), null, (Expr) visit(ctx.expr()), null, (Stmt) visit(ctx.stmt()));
     }
 
     @Override

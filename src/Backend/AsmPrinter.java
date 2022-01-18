@@ -44,7 +44,7 @@ public class AsmPrinter extends AsmPass {
 
     @Override
     public void visit(AsmFunction function) {
-        println("\t.globl " + function.name + "\t\t\t\t\t\t## -- Begin function " + function.name);
+        println("\t.globl " + function.fnAsmBasicBlock.name + "\t\t\t\t\t\t## -- Begin function " + function.fnAsmBasicBlock.name);
     }
 
     @Override

@@ -5,14 +5,14 @@ import IR.*;
 
 public class store extends Statement {
 	public PointerRegister pointer;
-	public Entity entity;
-	public store(PointerRegister pointer, Entity entity) {
+	public Register reg;
+	public store(PointerRegister pointer, Register reg) {
 		super();
 		this.pointer = pointer;
-		this.entity = entity;
+		this.reg = reg;
 	}
 	@Override public String toString() {
-		return pointer.memToString() + " = " + entity;}
+		return pointer + " = " + reg;}
 
 	@Override
 	public void accept(Pass visitor) {visitor.visit(this);}

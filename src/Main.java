@@ -65,14 +65,13 @@ public class Main {
 
 
             new IRPrinter(f, output).run();
+
             System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
             System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
 
-
 //            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
 //            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();
-
-            Runtime.getRuntime().exec("wsl rm r/a.out");
+//            Runtime.getRuntime().exec("wsl rm r/a.out");
 
 //            System.out.println("Success");
         } catch (Exception er) {

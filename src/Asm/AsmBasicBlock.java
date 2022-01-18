@@ -14,7 +14,7 @@ public class AsmBasicBlock {
         name = "block_" + (counter++);
     }
     public AsmBasicBlock(String name) {
-        this.name = name + "_block_" + (counter++);
+        this.name = name;
     }
 
     public void push_back(AsmStmt stmt) {

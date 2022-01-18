@@ -14,31 +14,39 @@ public class AsmBuilder extends Pass {
     public AsmBuilder(IREntry irEntry, AsmEntry asmEntry) {
         super(irEntry);
         this.asmEntry = asmEntry;
-    }
-
-    private Reg washdest(Register reg) {
-        return new Reg();
-    }
-
-    private Reg washread(Register reg) {
-        return new Reg();
-    }
-
-    private Reg entityToReg(Entity entity) {
-        if(entity instanceof Constant){
-
-        }else if(entity instanceof PointerRegister){
-
-        }else{
-
+        for(var i : irEntry.functions){
+            visit(i);
         }
-        return new Reg();
     }
 
-    private AsmBasicBlock BasicBlockToAsm(BasicBlock basicBlock){
-        return new AsmBasicBlock(basicBlock.name);
+    private Reg RegisterToReg(Register register){
+        if(register == Register.sp) return Reg.sp;
+        if(register == Register.s0) return Reg.s0;
+        if(register == Register.ra) return Reg.ra;
+        if(register == Register.a0) return Reg.a0;
+        if(register == Register.a1) return Reg.a1;
+        if(register == Register.a2) return Reg.a2;
+        if(register == Register.a3) return Reg.a3;
+        if(register == Register.a4) return Reg.a4;
+        if(register == Register.a5) return Reg.a5;
+        if(register == Register.a6) return Reg.a6;
+        if(register == Register.a7) return Reg.a7;
+        if(register == Register.zero) return Reg.zero;
+        if(register == Register.index) return Reg.index;
+        return null;
     }
 
+    private Addr pointerRegisterToAddr(PointerRegister pointerRegister){
+        return new Addr(pointerRegister.address, RegisterToReg(pointerRegister.offset));
+    }
+
+    private void lrp(Reg reg, PointerRegister pointerRegister){
+        asmBasicBlock.push_back(new lw(reg, pointerRegisterToAddr(pointerRegister)));
+    }
+
+    private void srp(Reg reg, PointerRegister pointerRegister){
+        asmBasicBlock.push_back(new sw(reg, pointerRegisterToAddr(pointerRegister)));
+    }
 
 
     @Override
@@ -48,31 +56,58 @@ public class AsmBuilder extends Pass {
 
     @Override
     public void visit(Function it) {
-//        asmFunction = new AsmFunction(it.);
-//        it.accept(this);
+        asmFunction = new AsmFunction();
+        for( var b : it.basicBlocks){
+            visit(b);
+            asmFunction.asmBasicBlocks.add(asmBasicBlock);
+            if(asmFunction.fnAsmBasicBlock == null) asmFunction.fnAsmBasicBlock = asmBasicBlock;
+        }
+    }
+
+    @Override
+    public void visit(BasicBlock basicBlock) {
+        asmBasicBlock = new AsmBasicBlock(basicBlock.name);
+        for(var s: basicBlock.stmts()){
+            s.accept(this);
+        }
     }
 
     public void visit(binary it) {
 
-        if ("<=".equals(it.op)) {
-            var lhs = washdest(it.lhs);
-            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op2), entityToReg(it.op1), "<"));
-            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
-        } else if (">".equals(it.op)) {
-            asmBasicBlock.push_back(new asmbinary(washdest(it.lhs), entityToReg(it.op2), entityToReg(it.op1), "<"));
-        } else if (">=".equals(it.op)) {
-            var lhs = washdest(it.lhs);
-            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op1), entityToReg(it.op2), "<"));
-            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
-        } else {
-            asmBasicBlock.push_back(new asmbinary(washdest(it.lhs), entityToReg(it.op1), entityToReg(it.op2), it.op));
-        }
+
+//        if ("<=".equals(it.op)) {
+//            var lhs = washdest(it.lhs);
+//            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op2), entityToReg(it.op1), "<"));
+//            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
+//        } else if (">".equals(it.op)) {
+//            asmBasicBlock.push_back(new asmbinary(washdest(it.lhs), entityToReg(it.op2), entityToReg(it.op1), "<"));
+//        } else if (">=".equals(it.op)) {
+//            var lhs = washdest(it.lhs);
+//            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op1), entityToReg(it.op2), "<"));
+//            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
+//        } else {
+        lrp(Reg.op1, it.op1);
+        lrp(Reg.op2, it.op2);
+        asmBasicBlock.push_back(new asmbinary(Reg.dest, Reg.op1, Reg.op2, it.op));
+        srp(Reg.dest, it.lhs);
+
+//        }
     }
 
-    public void visit(branch it) {
-        asmBasicBlock.push_back(new bnez(entityToReg(it.op), BasicBlockToAsm(it.trueBranch)));
-        asmBasicBlock.push_back(new beqz(entityToReg(it.op), BasicBlockToAsm(it.falseBranch)));
+    public void visit(binaryi it) {
+        lrp(Reg.op1, it.op1);
+        asmBasicBlock.push_back(new li(Reg.op2, it.op2));
+        asmBasicBlock.push_back(new asmbinary(Reg.dest, Reg.op1, Reg.op2, it.op));
+        srp(Reg.dest, it.lhs);
     }
+
+
+    public void visit(branch it) {
+        lrp(Reg.op1, it.op);
+        asmBasicBlock.push_back(new bnez(Reg.op1, it.trueBranch.name));
+        asmBasicBlock.push_back(new beqz(Reg.op1, it.falseBranch.name));
+    }
+
 
     public void visit(callfunc it) {
         asmBasicBlock.push_back(new call(it.callFuncName));
@@ -83,29 +118,26 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(loadinst it) {
-        int v = Integer.parseInt(it.constant.val);
-        int l = v & (0b111111111111);
-        int r = v >> 12;
-        Reg reg = washdest(it.reg);
-        asmBasicBlock.push_back(new li(reg, l));
-        if (r != 0)
-            asmBasicBlock.push_back(new lui(reg, r));
+        asmBasicBlock.push_back(new li(Reg.dest, it.constant));
+        srp(Reg.dest, it.reg);
+    }
+    public void visit(loadrinst it) {
+        asmBasicBlock.push_back(new li(RegisterToReg(it.reg), it.constant));
     }
 
     public void visit(load it) {
-        asmBasicBlock.push_back(new lw(washdest(it.reg), new Addr(it.pointer.address, washread(it.pointer))));
+        lrp(RegisterToReg(it.reg), it.pointer);
     }
 
-    public void visit(malloc it) {
-        new move(Register.a0, it.length).accept(this);
+    public void visit(malloci it) {
+        asmBasicBlock.push_back(new li(Reg.a0, it.length));
         asmBasicBlock.push_back(new call("malloc"));
-        asmBasicBlock.push_back(new mv(washdest(it.register), Reg.a0));
+        srp(Reg.a0, it.register);
     }
 
     public void visit(move it) {
-        if (it.entity instanceof Constant) new loadinst(it.reg, (Constant) it.entity).accept(this);
-        else if (it.entity instanceof PointerRegister) new load((PointerRegister) it.entity, it.reg).accept(this);
-        else asmBasicBlock.push_back(new mv(washdest(it.reg), washread((Register) it.entity)));
+        lrp(Reg.op1, it.psrc);
+        srp(Reg.op1, it.pdest);
     }
 
     public void visit(reter it) {
@@ -113,6 +145,6 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(store it) {
-        asmBasicBlock.push_back(new sw(entityToReg(it.entity), new Addr(it.pointer.address, washread(it.pointer))));
+        srp(RegisterToReg(it.reg), it.pointer);
     }
 }

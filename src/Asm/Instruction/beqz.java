@@ -7,10 +7,10 @@ import Asm.Reg;
 
 public class beqz extends AsmStmt {
     public Reg op;
-    public AsmBasicBlock trueBranch;
-    public beqz(Reg op, AsmBasicBlock trueBranch) {
+    public String trueBranch;
+    public beqz(Reg op, String trueBranch) {
         this.op = op;
         this.trueBranch = trueBranch;
     }
-    @Override public String toString() {return "bnez " + op + " " + trueBranch.name;}
+    @Override public String toString() {return "bnez " + op + " " + trueBranch;}
 }

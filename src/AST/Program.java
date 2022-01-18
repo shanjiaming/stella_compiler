@@ -6,9 +6,6 @@ import java.util.ArrayList;
 
 public class Program extends ASTNode{
 
-//    public ArrayList<ClassDef> classDefs = new ArrayList<>();
-//    public ArrayList<FuncDef> funcDefs = new ArrayList<>();
-//    public ArrayList<VarDefStmt> varDefStmts = new ArrayList<>();
     public ArrayList<ProgramUnit> programUnits = new ArrayList<>();
 
     public Program() {
@@ -16,6 +13,8 @@ public class Program extends ASTNode{
     public Program(position pos) {
         super(pos);
     }
+
+    public int globalframesize;
 
     @Override
     public void accept(ASTVisitor visitor) {

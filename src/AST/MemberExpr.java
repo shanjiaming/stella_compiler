@@ -2,7 +2,7 @@ package AST;
 
 import Util.position;
 
-public class MemberExpr extends Expr{
+public class MemberExpr extends AddressNode{
     public Expr lhs;
     public VarExpr rhs;
 

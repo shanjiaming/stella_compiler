@@ -12,8 +12,13 @@ public class asmbinary extends AsmStmt {
     public String op;
     public asmbinary(Reg lhs, Reg op1, Reg op2, String op) {
         this.lhs = lhs;
-        this.op1 = op1;
-        this.op2 = op2;
+        if("<=".equals(op) || ">=".equals(op)){
+            this.op1 = op2;
+            this.op2 = op1;
+        }else {
+            this.op1 = op1;
+            this.op2 = op2;
+        }
         switch (op){
             case "+" -> this.op = "add";
             case "-" -> this.op = "sub";
@@ -25,6 +30,7 @@ public class asmbinary extends AsmStmt {
             case ">>" -> this.op = "sra";
 
             case "<" -> this.op = "slt";
+            case ">" -> this.op = "sgt";
 
             case "|" -> this.op = "or";
             case "^" -> this.op = "xor";

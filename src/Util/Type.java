@@ -76,7 +76,7 @@ public class Type {
     public static final Type INT_TYPE = new Type("int", 0);
     public static final Type BOOL_TYPE = new Type("bool", 0);
     public static final Type STRING_TYPE = new Type("string", 0);
-    public static final Type NULL_TYPE = new Type("bool", 0);
+    public static final Type NULL_TYPE = new Type("null", 0);
 
     private static final HashSet<Type> basicTypes = new HashSet<>(Arrays.asList(INT_TYPE, BOOL_TYPE));
     private static final HashMap<Type, ClassDef> classTypes = new HashMap<>() {{

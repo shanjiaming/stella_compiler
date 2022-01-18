@@ -1,8 +1,9 @@
 package AST;
 
+import IR.PointerRegister;
 import Util.position;
 
-public class IndexExpr extends Expr{
+public class IndexExpr extends AddressNode{
     public Expr lhs, rhs;
 
     public IndexExpr(Expr lhs, Expr rhs) {
@@ -16,6 +17,8 @@ public class IndexExpr extends Expr{
         this.lhs = lhs;
         this.rhs = rhs;
     }
+
+    public PointerRegister tempPointer = new PointerRegister();
 
     @Override
     public void accept(ASTVisitor visitor) {visitor.visit(this);}

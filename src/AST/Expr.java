@@ -1,5 +1,6 @@
 package AST;
 
+import IR.PointerRegister;
 import Util.position;
 import Util.Type;
 import IR.Entity;
@@ -10,7 +11,7 @@ abstract public class Expr extends ASTNode{
     public position pos;
     public boolean isAssignable;
     public Type type;
-    public Entity entity;
+    public PointerRegister pointerRegister = new PointerRegister();
 
     public Expr(boolean isAssignable) {
         this.isAssignable = isAssignable;

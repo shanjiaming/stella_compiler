@@ -16,12 +16,13 @@ public class load extends Statement {
 		if(pointer == null){
 			System.out.println("ohno ini nullmem!");
 		}
+
 	}
 	@Override public String toString() {
 		if(pointer == null){
 			System.out.println("nullmempointer");
 		}
-		return reg + " = " + pointer.memToString();
+		return reg + " = " + pointer;
 	}
 
 	@Override

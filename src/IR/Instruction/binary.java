@@ -2,17 +2,14 @@ package IR.Instruction;
 
 import AST.ASTVisitor;
 import Backend.Pass;
-import IR.Constant;
-import IR.Entity;
-import IR.Register;
-import IR.Statement;
+import IR.*;
 
 public class binary extends Statement {
 
-    public Register lhs;
-    public Entity op1, op2;
+    public PointerRegister lhs;
+    public PointerRegister op1, op2;
     public String op;
-    public binary(Register lhs, Entity op1, Entity op2, String op) {
+    public binary(PointerRegister lhs, PointerRegister op1, PointerRegister op2, String op) {
         super();
         this.lhs = lhs;
         this.op1 = op1;

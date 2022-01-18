@@ -1,19 +1,18 @@
 package IR.Instruction;
 
 import Backend.Pass;
-import IR.Register;
-import IR.Entity;
+import IR.PointerRegister;
 import IR.Statement;
 
 public class move extends Statement {
-    public Register reg;
-    public Entity entity;
-    public move(Register reg, Entity entity) {
-        this.reg = reg;
-        this.entity = entity;
+    public PointerRegister pdest;
+    public PointerRegister psrc;
+    public move(PointerRegister pdest, PointerRegister psrc) {
+        this.pdest = pdest;
+        this.psrc = psrc;
     }
 
-    @Override public String toString() {return reg + " = " + entity;}
+    @Override public String toString() {return pdest + " = " + psrc;}
 
     @Override
     public void accept(Pass visitor) {visitor.visit(this);}

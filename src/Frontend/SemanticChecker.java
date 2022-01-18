@@ -15,6 +15,15 @@ public class SemanticChecker extends ASTVisitor {
     private ConstructDef currentConstructDef;
     private ReturnStmt currentReturnStmt;
 
+    private int s0Const = -12;
+    private int previouss0;
+    private int programframesize = 16;
+    private void assignaddress(PointerRegister p){
+        p.address = (s0Const -= 4);
+        if(currentFunc != null) currentFunc.frameSize += 4;
+        else programframesize += 4;
+    }
+
 
     @Override
     public void visit(Program it) {
@@ -46,6 +55,7 @@ public class SemanticChecker extends ASTVisitor {
         if (!mainFunc.parameterIdentifiers.isEmpty() || !mainFunc.parameterTypes.isEmpty())
             throw new SemanticError("main function should not hava parameters", it.pos);
         currentScope = currentScope.parentScope();
+        it.globalframesize = programframesize;
     }
 
     @Override
@@ -54,6 +64,8 @@ public class SemanticChecker extends ASTVisitor {
 //            it.parameterTypes.add(Type.stringToType(currentClass.name));
 //            it.parameterIdentifiers.add("this");
 //        }
+        previouss0 = s0Const;
+        s0Const = -12;
         int sz = it.parameterTypes.size();
         if (sz != it.parameterIdentifiers.size())
             throw new SemanticError("function parameters and identifiers numbers do not match", it.pos);
@@ -64,13 +76,16 @@ public class SemanticChecker extends ASTVisitor {
             currentScope.addPointerRegister(it.parameterIdentifiers.get(i), it.vars.get(i));
         }
         currentFunc = it;
-        it.frameSize += 4 * sz;
+        for (var para : it.vars){
+            assignaddress(para);
+        }
         ((ASTNode) it.body).accept(this);
         if (!"main".equals(it.name) && it.returnType != null && currentReturnStmt == null)
             throw new SemanticError("no return statement in non void function", it.pos);
         currentReturnStmt = null;
         currentFunc = null;
         currentScope = currentScope.parentScope();
+        s0Const = previouss0;
     }
 
     @Override
@@ -95,8 +110,6 @@ public class SemanticChecker extends ASTVisitor {
         currentScope = currentScope.parentScope();
     }
 
-//TODO handle null value
-
     @Override
     public void visit(VarDefStmt it) {
         int sz = it.names.size();
@@ -111,7 +124,7 @@ public class SemanticChecker extends ASTVisitor {
             if (it.isGlobal) p.offset = Register.zero;
             it.vars.add(p);
             currentScope.addPointerRegister(it.names.get(i), it.vars.get(i));
-            if (currentFunc != null) currentFunc.frameSize += 4;
+            assignaddress(p);
         }
     }
 
@@ -155,7 +168,7 @@ public class SemanticChecker extends ASTVisitor {
         } else if ("==".equals(it.op) || "!=".equals(it.op)) {
             it.type = Type.BOOL_TYPE;
         } else throw new SemanticError("types not match", it.pos);
-        it.entity = new Register();
+        assignaddress(it.pointerRegister);
     }
 
     @Override
@@ -170,7 +183,7 @@ public class SemanticChecker extends ASTVisitor {
         ))
             throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
-        it.entity = new Register();
+        assignaddress(it.pointerRegister);
     }
 
     @Override
@@ -179,7 +192,7 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.isAssignable) throw new SemanticError("prefix not assignable", it.pos);
         if (!it.lhs.type.equals(Type.INT_TYPE)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
-        it.entity = it.lhs.entity;//TODO 不很会搞，以及下标也不很会搞 // 移到IRbuilder加一条语句好了
+        it.pointerRegister = it.lhs.pointerRegister;//TODO 不很会搞，以及下标也不很会搞 // 移到IRbuilder加一条语句好了
     }
 
     @Override
@@ -188,7 +201,7 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.lhs.isAssignable) throw new SemanticError("suffix not assignable", it.pos);
         if (!it.lhs.type.equals(Type.INT_TYPE)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
-        it.entity = new Register();
+        assignaddress(it.pointerRegister);
     }
 
     @Override
@@ -211,8 +224,8 @@ public class SemanticChecker extends ASTVisitor {
             throw new SemanticError("this statement outside class", it.pos);
         }
         it.type = Type.stringToType(currentClass.name);
-        it.entity = currentScope.getPointerRegister("this", true);
-        if(it.entity == null){
+        it.pointerRegister = currentScope.getPointerRegister("this", true);
+        if(it.pointerRegister == null){
             System.out.println("not find this");
         }
     }
@@ -224,7 +237,8 @@ public class SemanticChecker extends ASTVisitor {
             if (!Type.INT_TYPE.equals(index.type))
                 throw new SemanticError("should use int to index, but use " + it.type, it.pos);
         });
-        it.entity = new Register();
+        assignaddress(it.pointerRegister);
+        assignaddress(it.tempPointer);
     }
 
     @Override
@@ -279,7 +293,9 @@ public class SemanticChecker extends ASTVisitor {
         if (!Type.INT_TYPE.equals(it.rhs.type))
             throw new SemanticError("should use int to index, but use " + it.type, it.pos);
         it.type = it.lhs.type.reduceDim();
-        it.entity = new PointerRegister();
+        assignaddress(it.pointerRegister);
+        assignaddress(it.addressPointer);
+        assignaddress(it.tempPointer);
     }
 
     @Override
@@ -289,7 +305,8 @@ public class SemanticChecker extends ASTVisitor {
         Type type = classDef.members.get(it.rhs.name);
         if (type == null) throw new SemanticError("no this name member variable", it.pos);
         it.type = type;
-        it.entity = new PointerRegister();
+        assignaddress(it.pointerRegister);
+        assignaddress(it.addressPointer);
     }
 
     @Override
@@ -301,11 +318,11 @@ public class SemanticChecker extends ASTVisitor {
 
             it.argList.add(it.lhs);
             it.type = Type.INT_TYPE;
-            it.entity = new Register();
 
             it.proxyFuncCall = new FuncCallExpr( "array__size");
             it.proxyFuncCall.argList = it.argList;
-            it.proxyFuncCall.entity = it.entity;
+            it.proxyFuncCall.pointerRegister = it.pointerRegister;
+            assignaddress(it.pointerRegister);
 
             return;
         }
@@ -322,11 +339,11 @@ public class SemanticChecker extends ASTVisitor {
         }
         it.argList.add(it.lhs);
         it.type = func.returnType;
-        it.entity = new Register();
 
         it.proxyFuncCall = new FuncCallExpr(classDef.name + "__" + it.name);
         it.proxyFuncCall.argList = it.argList;
-        it.proxyFuncCall.entity = it.entity;
+        it.proxyFuncCall.pointerRegister = it.pointerRegister;
+        assignaddress(it.pointerRegister);
     }
 
     @Override
@@ -337,7 +354,7 @@ public class SemanticChecker extends ASTVisitor {
                 memberFuncCallExpr.accept(this);
                 it.type = memberFuncCallExpr.type;
                 it.name = currentClass.name + "__" + it.name;
-                it.entity = new Register();
+                it.pointerRegister = memberFuncCallExpr.pointerRegister;
                 return;
             } catch (SemanticError ignored) {
             }
@@ -354,7 +371,7 @@ public class SemanticChecker extends ASTVisitor {
             }
         }
         it.type = func.returnType;
-        it.entity = new Register();
+        assignaddress(it.pointerRegister);
     }
 
     private VarExpr proxyvar;
@@ -368,8 +385,8 @@ public class SemanticChecker extends ASTVisitor {
             ThisExpr thisExpr = new ThisExpr();
             it.proxyThis = new MemberExpr(thisExpr, it);
             it.proxyThis.accept(this);
-            it.entity = it.proxyThis.entity;
-        } else it.entity = currentScope.getPointerRegister(it.name, true);
+            it.pointerRegister = it.proxyThis.pointerRegister;
+        } else it.pointerRegister = currentScope.getPointerRegister(it.name, true);
     }
 
     //HACK actually, lambda and break would interfere with each other, but I guess it will not test.
@@ -388,11 +405,12 @@ public class SemanticChecker extends ASTVisitor {
         }
         it.body.accept(this);
         currentScope = currentScope.parentScope();
-        it.entity = new Register();//though it doesn't need to do.
+        assignaddress(it.pointerRegister);
     }
 
     @Override
     public void visit(ConstExpr it) {
+        assignaddress(it.pointerRegister);
     }
 
     @Override
@@ -407,13 +425,14 @@ public class SemanticChecker extends ASTVisitor {
         if (!it.lhs.isAssignable) throw new SemanticError("lhs is not assignable", it.pos);
         if (!it.lhs.type.equals(it.rhs.type)) throw new SemanticError("types not match", it.pos);
         it.type = it.lhs.type;
-        it.entity = it.lhs.entity;
+        it.pointerRegister = it.lhs.pointerRegister;
     }
 
     @Override
     public void visit(NewClassExpr it) {
-        if (it.type.getClassDef() == null) throw new SemanticError("new class does not exist", it.pos);
-        it.entity = new Register();
+        if (it.type.getClassDef() == null)
+            throw new SemanticError("new class does not exist", it.pos);
+        assignaddress(it.pointerRegister);
     }
 
     @Override

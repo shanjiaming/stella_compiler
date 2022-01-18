@@ -3,12 +3,13 @@ package IR.Instruction;
 import Backend.Pass;
 import IR.BasicBlock;
 import IR.Entity;
+import IR.PointerRegister;
 import IR.terminalStmt;
 
 public class branch extends terminalStmt {
-    public Entity op;
+    public PointerRegister op;
     public BasicBlock trueBranch, falseBranch;
-    public branch(Entity op, BasicBlock trueBranch, BasicBlock falseBranch) {
+    public branch(PointerRegister op, BasicBlock trueBranch, BasicBlock falseBranch) {
         super();
         this.op = op;
         this.trueBranch = trueBranch;

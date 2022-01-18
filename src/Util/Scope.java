@@ -15,7 +15,7 @@ public class  Scope {
     private LambdaExpr lambdaExpr = null;
 
     private final HashMap<String, Type> namesToTypes = new HashMap<>();
-    private final HashMap<String, Register> namesToRegisters = new HashMap<>();
+    private final HashMap<String, PointerRegister> namesToRegisters = new HashMap<>();
 
     private final Scope parentScope;
     public HashMap<String, Register> entities = new HashMap<>();
@@ -76,7 +76,7 @@ public class  Scope {
         }
         return null;
     }
-    public Register getPointerRegister(String name, boolean lookUpon) {
+    public PointerRegister getPointerRegister(String name, boolean lookUpon) {
         if (namesToRegisters.containsKey(name)) {
             return namesToRegisters.get(name);
         } else if (parentScope != null && lookUpon) {

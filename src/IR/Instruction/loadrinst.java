@@ -1,12 +1,14 @@
 package IR.Instruction;
 
 import Backend.Pass;
-import IR.*;
+import IR.PointerRegister;
+import IR.Register;
+import IR.Statement;
 
-public class loadinst extends Statement {
-    public PointerRegister reg;
+public class loadrinst extends Statement {
+    public Register reg;
     public int constant;
-    public loadinst(PointerRegister reg, int constant) {
+    public loadrinst(Register reg, int constant) {
         this.reg = reg;
         this.constant = constant;
     }
