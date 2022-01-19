@@ -30,8 +30,8 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        boolean ir = false;
-        boolean oj = true;
+        boolean ir = true;
+        boolean oj = false;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;
@@ -40,9 +40,9 @@ public class Main {
 //        String name = "src/testcases/" + testcaseName;
 //        InputStream input = new FileInputStream(name);
         InputStream input;
-        if (ir) input = new FileInputStream("r/test.mx");
-        else if (oj) input = System.in;
-        else input = new FileInputStream("asm/test.mx");
+        if (ir || !oj) input = new FileInputStream("asm/test.mx");
+        else input = System.in;
+//        else input = new FileInputStream("asm/test.mx");
         OutputStream output;
 //        OutputStream output = System.out;
         if (ir) output = new FileOutputStream("r/ir.cpp");
@@ -78,7 +78,7 @@ public class Main {
                 new IRPrinter(f, output).run();
 
                 System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
-                System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
+                System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < asm/test.in").getInputStream().readAllBytes()));
             }
 //            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
 //            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();
