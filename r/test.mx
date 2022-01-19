@@ -1,5 +1,8 @@
-int []a = new int[5];
+class A{
+
+};
+A a;
 int main(){
-    int i = 1;
-    printlnInt(i);
+    a = new A;
+//    int a = 1;
 }

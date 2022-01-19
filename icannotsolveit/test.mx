@@ -1,0 +1,15 @@
+
+  int n = 200;
+  int[] ary = new int[n];
+int main() {
+
+  int i;
+  for (i = 0; i < n; ++i)
+    ary[i] = i;
+
+
+  for (i = 0; i < n; ++i)
+    printlnInt(ary[i]);
+
+  return 0;
+}

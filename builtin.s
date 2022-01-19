@@ -31,42 +31,42 @@ ir_malloc:                       # @ir_malloc
 string__add:                    # @string__add
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
-	sw	s0, 24(sp)
-	sw	s1, 20(sp)
-	.cfi_offset ra, -4
-	.cfi_offset s0, -8
-	.cfi_offset s1, -12
-	sw	a0, 16(sp)
-	sw	a1, 8(sp)
-	call	strlen
-	lw	a2, 8(sp)
-	mv	s0, a0
-	mv	s1, a1
-	mv	a0, a2
-	call	strlen
-	add	a1, s1, a1
-	add	a2, s0, a0
-	sltu	a0, a2, s0
-	add	a1, a1, a0
-	addi	a0, a2, 4
-	sltu	a2, a0, a2
-	add	a1, a1, a2
-	call	malloc
-	lw	a1, 16(sp)
-	sw	a0, 0(sp)
-	call	strcpy
-	lw	a0, 0(sp)
-	lw	a1, 16(sp)
-	call	strcat
-	lw	a0, 0(sp)
-	lw	s1, 20(sp)
-	lw	s0, 24(sp)
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
-	ret
+    addi	sp, sp, -32
+    .cfi_def_cfa_offset 32
+    sw	ra, 28(sp)
+    sw	s0, 24(sp)
+    sw	s1, 20(sp)
+    .cfi_offset ra, -4
+    .cfi_offset s0, -8
+    .cfi_offset s1, -12
+    sw	a0, 16(sp)
+    sw	a1, 8(sp)
+    call	strlen
+    lw	a2, 8(sp)
+    mv	s0, a0
+    mv	s1, a1
+    mv	a0, a2
+    call	strlen
+    add	a1, s1, a1
+    add	a2, s0, a0
+    sltu	a0, a2, s0
+    add	a1, a1, a0
+    addi	a0, a2, 4
+    sltu	a2, a0, a2
+    add	a1, a1, a2
+    call	malloc
+    lw	a1, 16(sp)
+    sw	a0, 0(sp)
+    call	strcpy
+    lw	a0, 0(sp)
+    lw	a1, 8(sp)
+    call	strcat
+    lw	a0, 0(sp)
+    lw	s1, 20(sp)
+    lw	s0, 24(sp)
+    lw	ra, 28(sp)
+    addi	sp, sp, 32
+    ret
 .Lfunc_end1:
 	.size	string__add, .Lfunc_end1-string__add
 	.cfi_endproc
@@ -386,36 +386,35 @@ string__length:                   # @string__length
 string__substring:              # @string__substring
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
-	.cfi_offset ra, -4
-	sw	a0, 24(sp)
-	sw	a1, 20(sp)
-	sw	a2, 16(sp)
-	sub	a0, a2, a1
-	addi	a0, a0, 1
-	srai	a1, a0, 31
-	call	malloc
-	lw	a2, 20(sp)
-	lw	a1, 24(sp)
-	lw	a3, 16(sp)
-	sw	a0, 8(sp)
-	slli	a4, a2, 2
-	add	a1, a1, a4
-	sub	a2, a3, a2
-	call	memcpy
-	lw	a0, 16(sp)
-	lw	a1, 20(sp)
-	lw	a2, 8(sp)
-	sub	a0, a0, a1
-	slli	a0, a0, 2
-	add	a0, a2, a0
-	sw	zero, 0(a0)
-	lw	a0, 8(sp)
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
-	ret
+    addi	sp, sp, -32
+    .cfi_def_cfa_offset 32
+    sw	ra, 28(sp)
+    .cfi_offset ra, -4
+    sw	a0, 24(sp)
+    sw	a1, 20(sp)
+    sw	a2, 16(sp)
+    sub	a0, a1, a0
+    addi	a0, a0, 1
+    srai	a1, a0, 31
+    call	malloc
+    lw	a1, 16(sp)
+    lw	a2, 24(sp)
+    lw	a3, 20(sp)
+    sw	a0, 8(sp)
+    add	a1, a1, a2
+    sub	a2, a3, a2
+    call	memcpy
+    lw	a0, 20(sp)
+    lw	a1, 24(sp)
+    lw	a2, 8(sp)
+    sub	a0, a0, a1
+    slli	a0, a0, 2
+    add	a0, a2, a0
+    sw	zero, 0(a0)
+    lw	a0, 8(sp)
+    lw	ra, 28(sp)
+    addi	sp, sp, 32
+    ret
 .Lfunc_end16:
 	.size	string__substring, .Lfunc_end16-string__substring
 	.cfi_endproc
@@ -431,8 +430,8 @@ string__parseInt:                 # @string__parseInt
 	sw	ra, 12(sp)
 	.cfi_offset ra, -4
 	sw	a0, 8(sp)
-	lui	a1, %hi(.L.str.2)
-	addi	a1, a1, %lo(.L.str.2)
+	lui	a1, %hi(.L.str)
+	addi	a1, a1, %lo(.L.str)
 	addi	a2, sp, 4
 	call	__isoc99_sscanf
 	lw	a0, 4(sp)
@@ -451,10 +450,10 @@ string__ord:                     # @string__ord
 # %bb.0:
 	addi	sp, sp, -16
 	.cfi_def_cfa_offset 16
-	sw	a0, 8(sp)
-	sw	a1, 4(sp)
-	slli	a1, a1, 2
-	add	a0, a0, a1
+	sw	a0, 12(sp)
+	sw	a1, 8(sp)
+	slli	a0, a0, 2
+	add	a0, a1, a0
 	lw	a0, 0(a0)
 	addi	sp, sp, 16
 	ret
@@ -493,23 +492,24 @@ ifake:                          # @ifake
 	sw	a2, 12(sp)
 	lw	a0, 0(a0)
 	slli	a0, a0, 2
-	bge	a0, a2, .LBB20_2
-.LBB20_1:
+	bge	a0, a2, .LBB1_2
+.LBB1_1:
 	lw	ra, 28(sp)
 	addi	sp, sp, 32
 	ret
-.LBB20_2:
-	lw	a0, 12(sp)
-	lw	a1, 24(sp)
-	andi	a0, a0, -4
-	add	a0, a1, a0
-	lw	a1, 0(a0)
-	sw	a1, 8(sp)
-	lw	a0, 16(sp)
-	slli	a1, a1, 2
-	sw	a1, 4(sp)
-	addi	a1, a1, 4
-	call	ir_malloc
+.LBB1_2:
+	lw	a0, 24(sp)
+	lw	a1, 12(sp)
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	sw	a0, 8(sp)
+	slli	a0, a0, 2
+	sw	a0, 4(sp)
+	addi	a0, a0, 4
+	srai	a1, a0, 31
+	call	malloc
+	lw	a1, 16(sp)
+	sw	a0, 0(a1)
 	lw	a0, 16(sp)
 	lw	a1, 0(a0)
 	addi	a1, a1, 4
@@ -519,24 +519,23 @@ ifake:                          # @ifake
 	lw	a0, 0(a0)
 	sw	a1, -4(a0)
 	sw	zero, 0(sp)
-.LBB20_3:                               # =>This Inner Loop Header: Depth=1
+.LBB1_3:                                # =>This Inner Loop Header: Depth=1
 	lw	a0, 0(sp)
 	lw	a1, 4(sp)
-	bge	a0, a1, .LBB20_1
-# %bb.4:                                #   in Loop: Header=BB20_3 Depth=1
+	bge	a0, a1, .LBB1_1
+# %bb.4:                                #   in Loop: Header=BB1_3 Depth=1
 	lw	a0, 16(sp)
-	lw	a1, 0(sp)
-	lw	a2, 0(a0)
+	lw	a1, 0(a0)
+	lw	a2, 0(sp)
 	lw	a3, 12(sp)
 	lw	a0, 24(sp)
-	andi	a1, a1, -4
-	add	a1, a2, a1
+	add	a1, a1, a2
 	addi	a2, a3, 4
 	call	ifake
 	lw	a0, 0(sp)
 	addi	a0, a0, 4
 	sw	a0, 0(sp)
-	j	.LBB20_3
+	j	.LBB1_3
 .Lfunc_end20:
 	.size	ifake, .Lfunc_end20-ifake
 	.cfi_endproc

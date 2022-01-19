@@ -30,7 +30,7 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        boolean oj = false;
+        boolean oj = true;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;

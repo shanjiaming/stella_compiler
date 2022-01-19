@@ -176,7 +176,7 @@ public class IRPrinter extends Pass {
             result.append("\tstringpool.push_back(").append(str).append(");\n");
 //            result.append("\tstringpool[").append(i++).append("] = ").append(str).append(";\n");
         }
-        result.append("\tinitialize();\n}");
+        result.append("\tmain_();\n}");
         pWriter.println(result);
         pWriter.flush();
     }

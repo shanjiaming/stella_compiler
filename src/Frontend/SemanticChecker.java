@@ -141,6 +141,7 @@ public class SemanticChecker extends ASTVisitor {
         it.proxyFunc.parameterIdentifiers.add("this");
         it.proxyFunc.parameterTypes.add(Type.stringToType(currentClass.name));
         it.proxyFunc.accept(this);
+
 //        currentScope = new Scope(currentScope);
 //        currentConstructDef = it;
 //        it.body.accept(this);
@@ -436,6 +437,7 @@ public class SemanticChecker extends ASTVisitor {
         if (it.type.getClassDef() == null)
             throw new SemanticError("new class does not exist", it.pos);
         assignaddress(it.pointerRegister);
+        assignaddress(it.funcPointer);
     }
 
     @Override

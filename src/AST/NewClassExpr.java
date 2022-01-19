@@ -1,5 +1,6 @@
 package AST;
 
+import IR.PointerRegister;
 import Util.position;
 import Util.Type;
 
@@ -14,6 +15,8 @@ public class NewClassExpr extends Expr {
 		super(pos,true);
 		super.type = type;
 	}
+
+	public PointerRegister funcPointer = new PointerRegister();
 
 	@Override
 	public void accept(ASTVisitor visitor) {visitor.visit(this);}

@@ -494,6 +494,7 @@ public class IRBuilder extends ASTVisitor {
 //        newclassvar.entity = it.entity;
 
         proxyFuncCall.argList.add(it);
+        proxyFuncCall.pointerRegister = it.funcPointer;
         proxyFuncCall.accept(this);
     }
 
