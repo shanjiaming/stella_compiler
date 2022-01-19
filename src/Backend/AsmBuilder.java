@@ -43,7 +43,13 @@ public class AsmBuilder extends Pass {
 
     private Addr pointerRegisterToAddr(PointerRegister pointerRegister){
         if(pointerRegister.isGlobal) return new Addr(pointerRegister.val);
+        if((pointerRegister.address >> 12) == 0)
         return new Addr(pointerRegister.address, RegisterToReg(pointerRegister.offset));
+        else {
+            asmBasicBlock.push_back(new li(Reg.t5, pointerRegister.address));
+            asmBasicBlock.push_back(new asmbinary(Reg.t5, Reg.t5, RegisterToReg(pointerRegister.offset), "+"));
+            return new Addr(0, Reg.t5);
+        }
     }
 
     private void lrp(Reg reg, PointerRegister pointerRegister){

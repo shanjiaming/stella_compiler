@@ -480,7 +480,7 @@ array__size:                      # @array__size
 	.globl	ifake           # -- Begin function ifake
 	.p2align	2
 	.type	ifake,@function
-ifake:                          # @ifake
+ifake:                           # @ifake
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32

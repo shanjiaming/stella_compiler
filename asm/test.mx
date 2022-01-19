@@ -1,16 +1,15 @@
-class A{
-    int a;
-    int b;
-    A(){
-        a = 1;
-        b = 2;
-    }
-    int f(){
-        return a+b;
-    }
-}
-int main(){
-    A a = new A;
-    a.b = 4;
-    printlnInt(a.f());
+
+int main() {
+  int n = 200;
+  int[] ary = new int[n];
+
+  int i;
+  for (i = 0; i < n; ++i)
+    ary[i] = i;
+
+
+  for (i = 0; i < n; ++i)
+    printlnInt(ary[i]);
+
+  return 0;
 }

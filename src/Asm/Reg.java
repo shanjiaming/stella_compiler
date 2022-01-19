@@ -22,6 +22,8 @@ public class Reg {
     public static Reg op2 = new Reg("t2");
     public static Reg index = new Reg("t3");
     //t4 在sw global的时候也用到了
+    public static Reg t5 = new Reg("t5");
+
     public static Reg zero = new Reg("zero");
 
 
