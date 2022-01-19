@@ -457,6 +457,8 @@ array__size:                      # @array__size
 	.p2align	2
 	.type	ir_new_array,@function
 ir_new_array:                  # @ir_new_array
+	.cfi_startproc
+# %bb.0:
 	addi	sp, sp, -32
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)
