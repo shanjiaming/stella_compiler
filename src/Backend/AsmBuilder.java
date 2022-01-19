@@ -41,9 +41,13 @@ public class AsmBuilder extends Pass {
         return null;
     }
 
+    boolean smallEnough(int x){
+        return -2048<= x && x < 2048;
+    }
+
     private Addr pointerRegisterToAddr(PointerRegister pointerRegister) {
         if (pointerRegister.isGlobal) return new Addr(pointerRegister.val);
-        if (-2048 <= pointerRegister.address && pointerRegister.address < 2048)
+        if (smallEnough(pointerRegister.address))
             return new Addr(pointerRegister.address, RegisterToReg(pointerRegister.offset));
         else {
             asmBasicBlock.push_back(new li(Reg.t5, pointerRegister.address));
@@ -121,7 +125,12 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(addri it) {
+        if(smallEnough(it.op2 ))
         asmBasicBlock.push_back(new asmbinaryi(RegisterToReg(it.lhs), RegisterToReg(it.op1), it.op2, "+"));
+        else{
+            asmBasicBlock.push_back(new li(Reg.op2, it.op2));
+            asmBasicBlock.push_back(new asmbinary(RegisterToReg(it.lhs), RegisterToReg(it.op1), Reg.op2, "+"));
+        }
     }
 
     public void visit(binaryi it) {

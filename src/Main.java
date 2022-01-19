@@ -30,6 +30,7 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        boolean ir = false;
         boolean oj = true;
 
 //        Scanner scanner = new Scanner(System.in);
@@ -39,11 +40,13 @@ public class Main {
 //        String name = "src/testcases/" + testcaseName;
 //        InputStream input = new FileInputStream(name);
         InputStream input;
-        if (oj) input = System.in;
+        if (ir) input = new FileInputStream("r/test.mx");
+        else if (oj) input = System.in;
         else input = new FileInputStream("asm/test.mx");
         OutputStream output;
 //        OutputStream output = System.out;
-        if (oj) output = new FileOutputStream("output.s");
+        if (ir) output = new FileOutputStream("r/ir.cpp");
+        else if (oj) output = new FileOutputStream("output.s");
         else output = new FileOutputStream("asm/test.s");//汇编语言输出到哪里
 
         try {
@@ -61,21 +64,22 @@ public class Main {
             IREntry f = new IREntry();
             new IRBuilder(f).visit(ASTRoot);
 
-            AsmEntry a = new AsmEntry();
-            AsmBuilder asmBuilder = new AsmBuilder(f, a);
-            new AsmPrinter(a, output).run();
-            if (!oj) {
+            if (!ir) {
+                AsmEntry a = new AsmEntry();
+                AsmBuilder asmBuilder = new AsmBuilder(f, a);
+                new AsmPrinter(a, output).run();
+                if (!oj) {
 //                Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").waitFor();
-            System.out.print(new String(Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").getErrorStream().readAllBytes()));
+                    System.out.print(new String(Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").getErrorStream().readAllBytes()));
 
-                System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
+                    System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
+                }
+            } else {
+                new IRPrinter(f, output).run();
+
+                System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
+                System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
             }
-
-//            new IRPrinter(f, output).run();
-
-//            System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
-//            System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in").getInputStream().readAllBytes()));
-
 //            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
 //            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();
 //            Runtime.getRuntime().exec("wsl rm r/a.out");

@@ -45,9 +45,9 @@ public class IRPrinter extends Pass {
                 std::unordered_map<int, int> reg;
                 std::vector<std::string> stringpool;
 
-                #define para1 (mem[-16+reg[/*sp*/0]])
-                #define para2 (mem[-20+reg[/*sp*/0]])
-                #define para3 (mem[-24+reg[/*sp*/0]])
+                #define para1  reg[/*a0*/3]
+                #define para2  reg[/*a1*/4]
+                #define para3  reg[/*a2*/5]
                 #define retval reg[/*a0*/3]
 
                 void ir_malloc(int &pointerReg, int length) {

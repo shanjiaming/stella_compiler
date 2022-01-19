@@ -1,8 +1,15 @@
-class A{
 
-};
-A a;
-int main(){
-    a = new A;
-//    int a = 1;
+int main() {
+  int n = 200;
+  int[] ary = new int[n];
+
+  int i;
+  for (i = 0; i < n; ++i)
+    ary[i] = i;
+
+
+  for (i = 0; i < n; ++i)
+    printlnInt(ary[i]);
+
+  return 0;
 }
