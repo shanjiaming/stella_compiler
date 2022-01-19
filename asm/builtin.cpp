@@ -97,17 +97,19 @@ int array__size(int *para1) {
     return *(para1 - 1);
 }
 
-void ifake(int *p, int &ret, int i) {
-    if (i > 4 * (*p)) return;
-    int sz = *(p + (i >> 2));
-    int sz4 = 4 * sz;
-    ir_malloc((int *&) (ret), sz4 + 4);
-    ret += 4;
-    *((int *) ret - 1) = sz;
-    for (int j = 0; j < sz4; j += 4)
-        ifake(p, *((int *) ret + (j >> 2)), i + 4);
-}
+#define lg 2
+#define len 4
 
-void ir_new_array(int *para1, int &para2, int para3) {
-    ifake(para1, para2, para3);
+int ir_new_array(int p, int i) {//de出来了。是因为不能用带引用的函数。之前那个ir_malloc也得改。
+    if (i > ((*(int*)p)<<lg)) return 0;
+    int sz = *(int*)(p + i);
+    int sz4 = sz << lg;
+    int ret;
+    (int *&)ret = (int*)malloc(sz4 + len);
+    ret += len;
+    *(int*)(ret - len) = sz;
+    for (int j = 0; j < sz4; j += len) {
+        *(int *) (ret + j) = ir_new_array(p, i + len);
+    }
+    return ret;
 }

@@ -406,8 +406,8 @@ string__parseInt:                 # @string__parseInt
 	sw	ra, 12(sp)
 	.cfi_offset ra, -4
 	sw	a0, 8(sp)
-	lui	a1, %hi(.L.str)
-	addi	a1, a1, %lo(.L.str)
+	lui	a1, %hi(.L.str.2)
+	addi	a1, a1, %lo(.L.str.2)
 	addi	a2, sp, 4
 	call	__isoc99_sscanf
 	lw	a0, 4(sp)

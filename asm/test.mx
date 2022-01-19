@@ -70,7 +70,6 @@ int main()
 		l[i] = 0;
    		r[i] = 0;
 	}
-	println("getOK!");
 	for (i=1;i <= M;i++) {
 		w[i + N] = ch.ord(i-1);
 		l[i + N] = 0;
