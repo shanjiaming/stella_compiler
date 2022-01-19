@@ -30,8 +30,8 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        boolean ir = true;//注：这个irbuilder已经被修改得在有全局变量的情况下irPrinter出来的东西无法工作了。残念。
-        boolean oj = false;
+        boolean ir = false;//注：这个irbuilder已经被修改得在有全局变量的情况下irPrinter出来的东西无法工作了。残念。
+        boolean oj = true;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;
@@ -77,11 +77,13 @@ public class Main {
             } else {
                 new IRPrinter(f, output).run();
 
-                System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
-                System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < asm/test.in").getInputStream().readAllBytes()));
+//                System.out.print(new String(Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").getErrorStream().readAllBytes()));
+//                System.out.println(new String(Runtime.getRuntime().exec("wsl ./r/a.out < asm/test.in").getInputStream().readAllBytes()));
+                Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
+                Runtime.getRuntime().exec("wsl ./r/a.out < asm/test.in > asm/test.out").waitFor();
+                System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
+
             }
-//            Runtime.getRuntime().exec("wsl g++ -o r/a.out r/ir.cpp").waitFor();
-//            Runtime.getRuntime().exec("wsl ./r/a.out < r/test.in > r/test.out").waitFor();
 //            Runtime.getRuntime().exec("wsl rm r/a.out");
 
 //            System.out.println("Success");
