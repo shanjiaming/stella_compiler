@@ -169,6 +169,11 @@ public class IRPrinter extends Pass {
                     retval = mem[para1 - 4];
                 }
                 """);
+        if (!irEntry.globalpool.isEmpty()) {
+            result.append("int ");
+            result.append(String.join(", ", irEntry.globalpool));
+            result.append(";\n");
+        }
         result.append(funcDeclare).append("\n\n");
         result.append(outstr);
         result = new StringBuilder(result.toString().replace("main", "main_"));

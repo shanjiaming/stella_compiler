@@ -12,9 +12,9 @@ ExitCode: 106
 InstLimit: -1
 Origin Package: Codegen Pretest-571
 */
+string s1 = "aaa";
+string s2 = "bbbbb";
 int main() {
-    string s1 = "aaa";
-    string s2 = "bbbbb";
     string s3 = s1 + s2;
-    return s3.length() + s3.ord(5);
+    print(s3);
 }

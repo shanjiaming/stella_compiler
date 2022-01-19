@@ -34,7 +34,7 @@ public class PointerRegister extends Entity {
     static public PointerRegister min12;
 
     @Override
-    public String toString() {return "mem[" + address + "+" + offset.regToString() + "]";}
+    public String toString() {return (val != null && val.length() >= 4 && "str_".equals(val.substring(0,4))) ? val.substring(4) : isGlobal ? val : "mem[" + address + "+" + offset.regToString() + "]";}
 
 //    public int intAddress(){
 //        return Integer.parseInt(address.val);
