@@ -89,7 +89,7 @@ int string__parseInt(int *str) {
     return ret;
 }
 
-int string__ord(int pos, int *str) {
+int string__ord(int pos, char *str) {
     return str[pos];
 }
 

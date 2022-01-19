@@ -428,9 +428,8 @@ string__ord:                     # @string__ord
 	.cfi_def_cfa_offset 16
 	sw	a0, 12(sp)
 	sw	a1, 8(sp)
-	slli	a0, a0, 2
 	add	a0, a1, a0
-	lw	a0, 0(a0)
+	lb	a0, 0(a0)
 	addi	sp, sp, 16
 	ret
 .Lfunc_end18:
