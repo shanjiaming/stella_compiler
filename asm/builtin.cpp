@@ -10,7 +10,7 @@ void ir_malloc(int *&pointerReg, int mallocSize) {
 int *string__add(int *str1, int *str2) {
     int *ret = (int *) malloc(strlen((char *) str1) + strlen((char *) str2) + 4);
     strcpy((char *) ret, (char *) str1);
-    strcat((char *) ret, (char *) str1);
+    strcat((char *) ret, (char *) str2);
     return ret;
 }
 
@@ -76,9 +76,9 @@ int string__length(int *str) {
     return strlen((const char *) (str));
 }
 
-int *string__substring(int *str, int left, int right) {
+int *string__substring(int left, int right, int *str) {
     int *ret = (int *) malloc(sizeof(char) * (right - left + 1));
-    memcpy(ret, str + left, right - left);
+    memcpy(ret, (char *)str + left, right - left);
     ret[right - left] = '\0';
     return ret;
 }
@@ -89,7 +89,7 @@ int string__parseInt(int *str) {
     return ret;
 }
 
-int string__ord(int *str, int pos) {
+int string__ord(int pos, int *str) {
     return str[pos];
 }
 

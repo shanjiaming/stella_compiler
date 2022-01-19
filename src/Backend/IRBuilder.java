@@ -38,8 +38,8 @@ public class IRBuilder extends ASTVisitor {
             if (programUnit instanceof VarDefStmt)
                 globalVars.add((VarDefStmt) programUnit);
         });
-        currentBasicBlock = new BasicBlock("init");
-        fn = new Function("init", currentBasicBlock);
+        currentBasicBlock = new BasicBlock("global_init");
+        fn = new Function("global_init", currentBasicBlock);
         irEntry.functions.add(fn);
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.globalframesize));
         PointerRegister raPointer = new PointerRegister(it.globalframesize - 4, Register.sp);
@@ -96,7 +96,7 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.frameSize));
         if("main".equals(it.name)){
-            currentBasicBlock.push_back(new callfunc("init"));
+            currentBasicBlock.push_back(new callfunc("global_init"));
         }
 
         it.body.stmts.forEach(s -> s.accept(this));
@@ -138,6 +138,8 @@ public class IRBuilder extends ASTVisitor {
             currentBasicBlock.push_back(new load(it.returnExpr.pointerRegister, Register.a0));
         }
         currentBasicBlock.push_back(new jump(returnBlock));
+        currentBasicBlock = new BasicBlock("return_after");
+        fn.basicBlocks.add(currentBasicBlock);
     }
 
 

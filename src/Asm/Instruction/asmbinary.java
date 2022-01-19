@@ -10,15 +10,14 @@ public class asmbinary extends AsmStmt {
     public Reg lhs;
     public Reg op1, op2;
     public String op;
+    private String signop;
+
     public asmbinary(Reg lhs, Reg op1, Reg op2, String op) {
         this.lhs = lhs;
-        if("<=".equals(op) || ">=".equals(op)){
-            this.op1 = op2;
-            this.op2 = op1;
-        }else {
-            this.op1 = op1;
-            this.op2 = op2;
-        }
+        this.op1 = op1;
+        this.op2 = op2;
+        signop = op;
+
         switch (op){
             case "+" -> this.op = "add";
             case "-" -> this.op = "sub";
@@ -29,20 +28,34 @@ public class asmbinary extends AsmStmt {
             case "<<" -> this.op = "sll";
             case ">>" -> this.op = "sra";
 
+            case "==" -> this.op = "xor";
+            case "!=" -> this.op = "xor";
+
             case "<" -> this.op = "slt";
+            case ">=" -> this.op = "slt";
             case ">" -> this.op = "sgt";
+            case "<=" -> this.op = "sgt";
 
             case "|" -> this.op = "or";
             case "^" -> this.op = "xor";
             case "&" -> this.op = "and";
-
-
-
-
+            default -> {
+                System.out.println(op);
+                assert false;
+            }
         }
     }
 
 
-    @Override public String toString() {return op + " " + lhs + ", " + op1 + ", " + op2;}
+    @Override public String toString() {
+        String s = op + " " + lhs + ", " + op1 + ", " + op2;
+        if("<=".equals(signop) || ">=".equals(signop) )
+        s += ("\n\txori "+lhs+", "+lhs+", 1");
+        if("==".equals(signop))
+        s += ("\n\tseqz "+lhs+", " + lhs);
+        if("!=".equals(signop))
+        s += ("\n\tsnez "+lhs+", " + lhs);
+        return  s;
+    }
 
 }

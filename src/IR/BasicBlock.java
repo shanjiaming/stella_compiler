@@ -25,6 +25,9 @@ public class BasicBlock {
     public void push_back(Statement stmt) {
         stmts.add(stmt);
         if(stmt instanceof terminalStmt){
+            if(tailStmt != null){
+                tailStmt = tailStmt;
+            }
             assert (tailStmt == null);
             tailStmt = (terminalStmt) stmt;
         }

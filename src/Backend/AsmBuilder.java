@@ -128,8 +128,8 @@ public class AsmBuilder extends Pass {
 
     public void visit(branch it) {
         lrp(Reg.op1, it.op);
-        asmBasicBlock.push_back(new bnez(Reg.op1, it.trueBranch.name));
         asmBasicBlock.push_back(new beqz(Reg.op1, it.falseBranch.name));
+        asmBasicBlock.push_back(new j(it.trueBranch.name));
     }
 
 
@@ -138,7 +138,7 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(jump it) {
-        asmBasicBlock.push_back(new j(it.destination));
+        asmBasicBlock.push_back(new j(it.destination.name));
     }
 
     public void visit(loadinst it) {

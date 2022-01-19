@@ -28,9 +28,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.io.*;
 
 
-
 public class Main {
     public static void main(String[] args) throws Exception {
+        boolean oj = false;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;
@@ -38,12 +38,13 @@ public class Main {
 //        testcaseName = "sema\\misc-package\\misc-6.mx";
 //        String name = "src/testcases/" + testcaseName;
 //        InputStream input = new FileInputStream(name);
-        InputStream input = System.in;
+        InputStream input;
+        if (oj) input = System.in;
+        else input = new FileInputStream("asm/test.mx");
+        OutputStream output;
 //        OutputStream output = System.out;
-//        InputStream input = new FileInputStream("src/testcases/codegen/e9.mx");
-//        InputStream input = new FileInputStream("asm/test.mx");
-        OutputStream output = new FileOutputStream("output.s");
-//        OutputStream output = new FileOutputStream("asm/test.s");//汇编语言输出到哪里
+        if (oj) output = new FileOutputStream("output.s");
+        else output = new FileOutputStream("asm/test.s");//汇编语言输出到哪里
 
         try {
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input));
@@ -63,10 +64,12 @@ public class Main {
             AsmEntry a = new AsmEntry();
             AsmBuilder asmBuilder = new AsmBuilder(f, a);
             new AsmPrinter(a, output).run();
-//            Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").waitFor();
+            if (!oj) {
+//                Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").waitFor();
+            System.out.print(new String(Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").getErrorStream().readAllBytes()));
 
-//            System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
-//            System.out.print(new String(Runtime.getRuntime().exec("wsl cd asm && ./ravel --oj-mode").getErrorStream().readAllBytes()));
+                System.out.print(new String(Runtime.getRuntime().exec("wsl cat asm/test.out").getInputStream().readAllBytes()));
+            }
 
 //            new IRPrinter(f, output).run();
 

@@ -12,10 +12,16 @@ public class asmbinaryi extends AsmStmt {
     public asmbinaryi(Reg lhs, Reg op1, int op2, String op) {
         this.lhs = lhs;
         this.op1 = op1;
-        this.op2 = op2;
+        this.op2 = ("-".equals(op))? -op2 :op2;
         switch (op){
             case "+" -> this.op = "addi";
+            case "-" -> this.op = "addi";
+            case "*" -> this.op = "muli";
             case "^" -> this.op = "xori";
+            default -> {
+                System.out.println(op);
+                assert false;
+            }
         }
     }
 
