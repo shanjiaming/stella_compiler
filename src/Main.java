@@ -30,8 +30,8 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        boolean ir = true;
-        boolean oj = false;
+        boolean ir = false;
+        boolean oj = true;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;
