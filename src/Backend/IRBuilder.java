@@ -337,16 +337,16 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new store(pointerRegister, Register.index));
         currentBasicBlock.push_back(new load(pointerRegister, Register.a0));
 
-        PointerRegister pointerRegister2 = new PointerRegister(spConst -= 4, Register.sp);
-        currentBasicBlock.push_back(new move(pointerRegister2, it.pointerRegister));
-        currentBasicBlock.push_back(new load(pointerRegister2, Register.a1));
+//        PointerRegister pointerRegister2 = new PointerRegister(spConst -= 4, Register.sp);
+//        currentBasicBlock.push_back(new move(pointerRegister2, it.pointerRegister));
+//        currentBasicBlock.push_back(new load(pointerRegister2, Register.a1));
 
         PointerRegister pointerRegister3 = new PointerRegister(spConst -= 4, Register.sp);
         currentBasicBlock.push_back(new loadinst(pointerRegister3, 4));
-        currentBasicBlock.push_back(new load(pointerRegister3, Register.a2));
+        currentBasicBlock.push_back(new load(pointerRegister3, Register.a1));
 
         currentBasicBlock.push_back(new callfunc("ir_new_array"));
-        currentBasicBlock.push_back(new move(it.pointerRegister, pointerRegister2));
+        currentBasicBlock.push_back(new store(it.pointerRegister, Register.a0));
 
 //        FuncCallExpr funcCallExpr = new FuncCallExpr("ir_new_array");
 

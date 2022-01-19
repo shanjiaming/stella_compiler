@@ -59,19 +59,21 @@ public class IRPrinter extends Pass {
                     ptr += length;
                 }
 
-                void ifake(int p, int& ret, int i){
-                    if (i > 4 * mem[p]) return;
+                int ifake(int p, int i){
+                    if (i > 4 * mem[p]) return 0;
                     int sz = mem[p + i];
                     int sz4 = 4 * sz;
+                    int ret;
                     ir_malloc(ret,sz4 + 4);
                     ret += 4;
                     mem[ret - 4] = sz;
                     for (int j = 0; j < sz4; j+=4)
-                        ifake(p,mem[ret+j], i+4);
+                        mem[ret+j] = ifake(p, i+4);
+                    return ret;
                 }
 
                 void ir_new_array(){
-                    ifake(para1,para2,para3);
+                    retval = ifake(para1,para2);
                 }
 
                 void print() {

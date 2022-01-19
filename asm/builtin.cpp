@@ -3,9 +3,9 @@
 #include <string.h>
 
 
-void ir_malloc(int *&pointerReg, int mallocSize) {
-    pointerReg = (int *) malloc(mallocSize);
-}
+//void ir_malloc(int *&pointerReg, int mallocSize) {
+//    pointerReg = (int *) malloc(mallocSize);
+//}
 
 int *string__add(int *str1, int *str2) {
     int *ret = (int *) malloc(strlen((char *) str1) + strlen((char *) str2) + 4);
