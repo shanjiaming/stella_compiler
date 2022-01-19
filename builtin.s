@@ -1,30 +1,6 @@
 	.text
 	.file	"builtin.cpp"
-	.globl	ir_malloc        # -- Begin function ir_malloc
-	.p2align	2
-	.type	ir_malloc,@function
-ir_malloc:                       # @ir_malloc
-	.cfi_startproc
-# %bb.0:
-	addi	sp, sp, -16
-	.cfi_def_cfa_offset 16
-	sw	ra, 12(sp)
-	.cfi_offset ra, -4
-	mv	a2, a1
-	sw	a0, 8(sp)
-	sw	a1, 4(sp)
-	srai	a1, a1, 31
-	mv	a0, a2
-	call	malloc
-	lw	a1, 8(sp)
-	sw	a0, 0(a1)
-	lw	ra, 12(sp)
-	addi	sp, sp, 16
-	ret
-.Lfunc_end0:
-	.size	ir_malloc, .Lfunc_end0-ir_malloc
-	.cfi_endproc
-                                        # -- End function
+
 	.globl	string__add     # -- Begin function string__add
 	.p2align	2
 	.type	string__add,@function
@@ -477,85 +453,70 @@ array__size:                      # @array__size
 	.size	array__size, .Lfunc_end19-array__size
 	.cfi_endproc
                                         # -- End function
-	.globl	ifake           # -- Begin function ifake
-	.p2align	2
-	.type	ifake,@function
-ifake:                           # @ifake
-	.cfi_startproc
-# %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
-	.cfi_offset ra, -4
-	sw	a0, 24(sp)
-	sw	a1, 16(sp)
-	sw	a2, 12(sp)
-	lw	a0, 0(a0)
-	slli	a0, a0, 2
-	bge	a0, a2, .LBB1_2
-.LBB1_1:
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
-	ret
-.LBB1_2:
-	lw	a0, 24(sp)
-	lw	a1, 12(sp)
-	add	a0, a0, a1
-	lw	a0, 0(a0)
-	sw	a0, 8(sp)
-	slli	a0, a0, 2
-	sw	a0, 4(sp)
-	addi	a0, a0, 4
-	srai	a1, a0, 31
-	call	malloc
-	lw	a1, 16(sp)
-	sw	a0, 0(a1)
-	lw	a0, 16(sp)
-	lw	a1, 0(a0)
-	addi	a1, a1, 4
-	sw	a1, 0(a0)
-	lw	a0, 16(sp)
-	lw	a1, 8(sp)
-	lw	a0, 0(a0)
-	sw	a1, -4(a0)
-	sw	zero, 0(sp)
-.LBB1_3:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, 0(sp)
-	lw	a1, 4(sp)
-	bge	a0, a1, .LBB1_1
-# %bb.4:                                #   in Loop: Header=BB1_3 Depth=1
-	lw	a0, 16(sp)
-	lw	a1, 0(a0)
-	lw	a2, 0(sp)
-	lw	a3, 12(sp)
-	lw	a0, 24(sp)
-	add	a1, a1, a2
-	addi	a2, a3, 4
-	call	ifake
-	lw	a0, 0(sp)
-	addi	a0, a0, 4
-	sw	a0, 0(sp)
-	j	.LBB1_3
-.Lfunc_end20:
-	.size	ifake, .Lfunc_end20-ifake
-	.cfi_endproc
-                                        # -- End function
 	.globl	ir_new_array   # -- Begin function ir_new_array
 	.p2align	2
 	.type	ir_new_array,@function
 ir_new_array:                  # @ir_new_array
-	.cfi_startproc
-# %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
+	addi	sp, sp, -48
+	.cfi_def_cfa_offset 48
+	sw	ra, 44(sp)
+	sw	s0, 40(sp)
 	.cfi_offset ra, -4
+	.cfi_offset s0, -8
+	sw	a0, 32(sp)
+	sw	a1, 28(sp)
+	lw	a0, 0(a0)
+	slli	a0, a0, 2
+	bge	a0, a1, .LBB1_2
+# %bb.1:
+	addi	a0, zero, 0
+	j	.LBB1_6
+.LBB1_2:
+	lw	a0, 32(sp)
+	lw	a1, 28(sp)
+	add	a0, a0, a1
+	lw	a0, 0(a0)
 	sw	a0, 24(sp)
-	sw	a1, 16(sp)
-	sw	a2, 12(sp)
-	call	ifake
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
+	slli	a0, a0, 2
+	sw	a0, 20(sp)
+	addi	a0, a0, 4
+	srai	a1, a0, 31
+	call	malloc
+	lw	a1, 24(sp)
+	addi	a2, a0, 4
+	sw	a2, 16(sp)
+	sw	a1, 0(a0)
+	sw	zero, 12(sp)
+	addi	s0, zero, 579
+.LBB1_3:                                # =>This Inner Loop Header: Depth=1
+	lw	a0, 12(sp)
+	lw	a1, 20(sp)
+	bge	a0, a1, .LBB1_5
+# %bb.4:                                #   in Loop: Header=BB1_3 Depth=1
+	lw	a0, 16(sp)
+	lw	a1, 12(sp)
+	add	a0, a0, a1
+	sw	s0, 0(a0)
+	lw	a1, 28(sp)
+	lw	a0, 32(sp)
+	addi	a1, a1, 4
+	call	ir_new_array
+	lw	a1, 16(sp)
+	lw	a2, 12(sp)
+	add	a1, a1, a2
+	sw	a0, 0(a1)
+	lw	a0, 12(sp)
+	addi	a0, a0, 4
+	sw	a0, 12(sp)
+	j	.LBB1_3
+.LBB1_5:
+	lw	a0, 16(sp)
+.LBB1_6:
+	sw	a0, 36(sp)
+	lw	a0, 36(sp)
+	lw	s0, 40(sp)
+	lw	ra, 44(sp)
+	addi	sp, sp, 48
 	ret
 .Lfunc_end21:
 	.size	ir_new_array, .Lfunc_end21-ir_new_array
