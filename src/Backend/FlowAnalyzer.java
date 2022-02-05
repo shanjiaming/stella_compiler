@@ -1,5 +1,6 @@
 package Backend;
 
+import Asm.Reg;
 import IR.*;
 import IR.Instruction.*;
 
@@ -69,7 +70,21 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
-//       分配 for()
+        Map <Integer, Integer> colormap = new HashMap<>();
+
+        for(int i = 0; i < 11; ++i){
+            ContinueFor : for (var node : nodes) {
+                if(colormap.containsKey(node)) continue;
+                var crashs = contractmap.get(node);
+                for(var crash : crashs){
+                    if(Integer.valueOf(i).equals(colormap.get(crash)))
+                        continue ContinueFor;
+                }
+                colormap.put(node, i);
+            }
+        }
+
+        //染色完毕，只等分配了
 
 
     }
