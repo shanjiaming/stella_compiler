@@ -25,7 +25,19 @@ public class Reg {
     public static Reg t5 = new Reg("t5");
 
     public static Reg zero = new Reg("zero");
-
+    public static Reg[] ss = new Reg[]{
+            new Reg("s1"),
+            new Reg("s2"),
+            new Reg("s3"),
+            new Reg("s4"),
+            new Reg("s5"),
+            new Reg("s6"),
+            new Reg("s7"),
+            new Reg("s8"),
+            new Reg("s9"),
+            new Reg("s10"),
+            new Reg("s11")
+    };
 
     public Reg(String name){
         this.name = name;

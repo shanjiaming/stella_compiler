@@ -36,6 +36,9 @@ public class AsmBuilder extends Pass {
         if (register == Register.a7) return Reg.a7;
         if (register == Register.zero) return Reg.zero;
         if (register == Register.index) return Reg.index;
+        for(int i = 0; i < 11; ++i){
+            if(register == Register.ss[i]) return Reg.ss[i];
+        }
         return null;
     }
 

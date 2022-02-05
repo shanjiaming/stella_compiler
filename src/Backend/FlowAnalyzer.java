@@ -45,18 +45,19 @@ public class FlowAnalyzer extends Pass{
     }
 
     private void visitstmt(Statement stmt) {
-        Set<Integer> inshat = new HashSet<>();
-        inshat.addAll(stmt.outs);
-        inshat.removeAll(stmt.defs());
-        inshat.addAll(stmt.uses());
-        changed |= !stmt.ins.equals(inshat);
-        stmt.ins = inshat;
         Set<Integer> outshat = new HashSet<>();
         for(Statement sm : stmt.goin){
             outshat.addAll(sm.ins);
         }
         changed |= !stmt.outs.equals(outshat);
         stmt.outs = outshat;
+
+        Set<Integer> inshat = new HashSet<>();
+        inshat.addAll(stmt.outs);
+        inshat.removeAll(stmt.defs());
+        inshat.addAll(stmt.uses());
+        changed |= !stmt.ins.equals(inshat);
+        stmt.ins = inshat;
 //        stmt.ins <- stmt.uses() + (stmt.outs - stmt.defs());
 //        stmt.outs = stmt.goout.forEach(sm->sm.ins);
     }
