@@ -1,15 +1,14 @@
 package Backend;
 
-import IR.BasicBlock;
-import IR.Function;
-import IR.IREntry;
+import IR.*;
 import IR.Instruction.*;
-import IR.Statement;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-public class FlowAnalyzer extends Pass{
+public class FlowAnalyzer extends Pass {
 
     public FlowAnalyzer(IREntry irEntry) {
         super(irEntry);
@@ -25,12 +24,54 @@ public class FlowAnalyzer extends Pass{
         int sz = function.basicBlocks.size();
 
         changed = true;
-        while(changed) {
+        while (changed) {
             changed = false;
             for (int i = sz - 1; i >= 0; i--) {
                 visit(function.basicBlocks.get(i));
             }
         }
+
+        Map<Integer, Set<Integer>> contractmap = new HashMap<>();//注意加边的时候要加两遍
+
+        Set<Integer> nodes = new HashSet<>();
+
+        for (BasicBlock b : function.basicBlocks) {
+            for (Statement s : b.stmts) {
+                nodes.addAll(s.uses());
+                nodes.addAll(s.defs());
+            }
+        }
+
+        for (var node : nodes) {
+            contractmap.put(node, new HashSet<>());
+        }
+
+
+        for (BasicBlock bl : function.basicBlocks) {
+            for (Statement s : bl.stmts) {
+                if (s instanceof move) {
+                    for (var a : s.defs()) {
+                        for (var b : s.outs) {
+                            if (((move) s).psrc.offset == Register.s0 && b.equals(((move) s).psrc.address))
+                                break;
+                            contractmap.get(a).add(b);
+                            contractmap.get(b).add(a);
+                        }
+                    }
+                } else {
+                    for (var a : s.defs()) {
+                        for (var b : s.outs) {
+                            contractmap.get(a).add(b);
+                            contractmap.get(b).add(a);
+                        }
+                    }
+                }
+            }
+        }
+
+//       分配 for()
+
+
     }
 
     @Override
@@ -46,7 +87,7 @@ public class FlowAnalyzer extends Pass{
 
     private void visitstmt(Statement stmt) {
         Set<Integer> outshat = new HashSet<>();
-        for(Statement sm : stmt.goin){
+        for (Statement sm : stmt.goout) {
             outshat.addAll(sm.ins);
         }
         changed |= !stmt.outs.equals(outshat);
@@ -58,10 +99,7 @@ public class FlowAnalyzer extends Pass{
         inshat.addAll(stmt.uses());
         changed |= !stmt.ins.equals(inshat);
         stmt.ins = inshat;
-//        stmt.ins <- stmt.uses() + (stmt.outs - stmt.defs());
-//        stmt.outs = stmt.goout.forEach(sm->sm.ins);
     }
-
 
 
     @Override
