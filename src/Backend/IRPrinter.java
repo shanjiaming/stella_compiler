@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class IRPrinter extends Pass {
+public class IRPrinter extends IRPass {
     private final PrintWriter pWriter;
     OutputStream out;
     String funcDeclare = "";

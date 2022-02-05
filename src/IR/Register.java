@@ -25,6 +25,19 @@ public class Register extends Entity {
     public static Register a7 = new Register("a7");
     public static Register zero = new Register("zero");
     public static Register index = new Register("index");
+    public static Register[] ss = new Register[]{
+            new Register("s1"),
+            new Register("s2"),
+            new Register("s3"),
+            new Register("s4"),
+            new Register("s5"),
+            new Register("s6"),
+            new Register("s7"),
+            new Register("s8"),
+            new Register("s9"),
+            new Register("s10"),
+            new Register("s11")
+    };
 
     public static Register[] a = new Register[] {a0,a1,a2,a3,a4,a5,a6,a7};
 

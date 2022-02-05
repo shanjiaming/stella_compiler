@@ -1,23 +1,18 @@
 package IR.Instruction;
 
-import AST.Expr;
 import Backend.Pass;
 import IR.PointerRegister;
-import IR.Statement;
 import IR.terminalStmt;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringJoiner;
 
-public class callfunc extends Statement {
-    public String callFuncName;
-    public callfunc(String name){callFuncName = name;}
+public class blockfirst extends terminalStmt {
+    public blockfirst() {
 
-    @Override public String toString() {
-        return callFuncName + "(" + ")";
     }
+    @Override public String toString() {return "blockfirst";}
 
     @Override
     public void accept(Pass visitor) {visitor.visit(this);}
@@ -25,10 +20,10 @@ public class callfunc extends Statement {
     @Override
     public Set<Integer> defs() {
         Set<Integer> ret = new HashSet<>();
-        //TODO add 所有有可能会之后改变的寄存器
         return ret;
     }
 
+    @Override
     public Set<Integer> uses() {
         Set<Integer> ret = new HashSet<>();
         return ret;

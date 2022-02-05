@@ -7,10 +7,7 @@
 
 import AST.Program;
 import Asm.AsmEntry;
-import Backend.AsmBuilder;
-import Backend.AsmPrinter;
-import Backend.IRBuilder;
-import Backend.IRPrinter;
+import Backend.*;
 import Frontend.ASTBuilder;
 //import Frontend.SemanticChecker;
 //import Frontend.SymbolCollector;
@@ -63,6 +60,7 @@ public class Main {
 
             IREntry f = new IREntry();
             new IRBuilder(f).visit(ASTRoot);
+            new FlowAnalyzer(f);
 
             if (!ir) {
                 AsmEntry a = new AsmEntry();

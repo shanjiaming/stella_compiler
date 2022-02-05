@@ -3,7 +3,6 @@ package AST;
 import IR.PointerRegister;
 import Util.position;
 import Util.Type;
-import IR.Entity;
 
 
 abstract public class Expr extends ASTNode{

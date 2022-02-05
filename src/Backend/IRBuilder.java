@@ -8,7 +8,7 @@ import Util.Type;
 import java.util.ArrayList;
 import java.util.Stack;
 
-//所有新建变量几乎都是出格的，因为没有给它们分配空间！
+
 public class IRBuilder extends ASTVisitor {
     private Function fn;
     private BasicBlock currentBasicBlock;
@@ -22,6 +22,8 @@ public class IRBuilder extends ASTVisitor {
     }
 
     private boolean isGlobal = false;
+
+    public static int STACKSTARTSIZE = 12 + 4 * 11;
 
     @Override
     public void visit(Program it) {
@@ -44,8 +46,11 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.globalframesize));
         PointerRegister raPointer = new PointerRegister(it.globalframesize - 4, Register.sp);
         PointerRegister s0Pointer = new PointerRegister(it.globalframesize - 8, Register.sp);
-        currentBasicBlock.push_back(new store(raPointer, Register.ra));
+        currentBasicBlock.push_back(new store(raPointer, Register.ra));//这两个寄存器的操作也可以化成s0版本的
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
+        for(int i = 0; i < 11; ++i){
+            currentBasicBlock.push_back(new store(new PointerRegister(-12 - i * 4, Register.s0), Register.ss[i]));
+        }
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.globalframesize));
 
 //        currentBasicBlock.push_back(new loadrinst(Register.s0, 0));
@@ -54,6 +59,9 @@ public class IRBuilder extends ASTVisitor {
             i.accept(this);
         }
         isGlobal = false;
+        for(int i = 0; i < 11; ++i){
+            currentBasicBlock.push_back(new load(new PointerRegister(-12 - i * 4, Register.s0), Register.ss[i]));
+        }
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new load(raPointer, Register.ra));
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, it.globalframesize));
@@ -87,7 +95,7 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock = new BasicBlock("funcDef");
         fn = new Function(it.name, currentBasicBlock);
         irEntry.functions.add(fn);
-        PointerRegister.min12 = new PointerRegister(-12);
+        PointerRegister.min12 = new PointerRegister(-STACKSTARTSIZE);
         returnBlock = new BasicBlock("return");
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.frameSize));
         PointerRegister raPointer = new PointerRegister(it.frameSize - 4, Register.sp);
@@ -95,6 +103,9 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new store(raPointer, Register.ra));
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.frameSize));
+        for(int i = 0; i < 11; ++i){
+            currentBasicBlock.push_back(new store(new PointerRegister(-12 - i * 4, Register.s0), Register.ss[i]));
+        }
         if("main".equals(it.name)){
             currentBasicBlock.push_back(new callfunc("global_init"));
         }
@@ -110,6 +121,9 @@ public class IRBuilder extends ASTVisitor {
         fn.basicBlocks.add(returnBlock);
         if (it.returnType != null) {
             currentBasicBlock.push_back(new load(PointerRegister.min12, Register.a0));
+        }
+        for(int i = 0; i < 11; ++i){
+            currentBasicBlock.push_back(new load(new PointerRegister(-12 - i * 4, Register.s0), Register.ss[i]));
         }
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new load(raPointer, Register.ra));
@@ -331,7 +345,7 @@ public class IRBuilder extends ASTVisitor {
             currentBasicBlock.push_back(new move(new PointerRegister(p.address, Register.index), dim.pointerRegister));
         }
         p.address = 0;
-        int spConst = -12;
+        int spConst = -STACKSTARTSIZE;
 
         PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);
         currentBasicBlock.push_back(new store(pointerRegister, Register.index));
@@ -449,7 +463,7 @@ public class IRBuilder extends ASTVisitor {
         it.argList.forEach(expr -> {
             expr.accept(this);
         });
-        int spConst = -12;
+        int spConst = -STACKSTARTSIZE;
         int i = 0;
         for (var expr : it.argList){
             PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);

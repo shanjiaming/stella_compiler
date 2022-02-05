@@ -5,6 +5,10 @@ import IR.PointerRegister;
 import IR.Register;
 import IR.Statement;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 public class addri extends Statement {
 
     public Register lhs;
@@ -21,4 +25,16 @@ public class addri extends Statement {
 
     @Override
     public void accept(Pass visitor) {visitor.visit(this);}
+
+    @Override
+    public Set<Integer> defs() {
+        Set<Integer> ret = new HashSet<>();
+        return ret;
+    }
+
+    @Override
+    public Set<Integer> uses() {
+        Set<Integer> ret = new HashSet<>();
+        return ret;
+    }
 }

@@ -5,8 +5,6 @@ import Asm.Instruction.*;
 import IR.*;
 import IR.Instruction.*;
 
-import java.util.ArrayList;
-
 public class AsmBuilder extends Pass {
 
     public AsmEntry asmEntry;
@@ -66,24 +64,6 @@ public class AsmBuilder extends Pass {
 
 
     @Override
-    public void visit(Statement it) {
-        if (it instanceof addri) visit((addri) it);
-        else if (it instanceof binary) visit((binary) it);
-        else if (it instanceof binaryi) visit((binaryi) it);
-        else if (it instanceof branch) visit((branch) it);
-        else if (it instanceof callfunc) visit((callfunc) it);
-        else if (it instanceof jump) visit((jump) it);
-        else if (it instanceof load) visit((load) it);
-        else if (it instanceof loadinst) visit((loadinst) it);
-        else if (it instanceof loadrinst) visit((loadrinst) it);
-        else if (it instanceof malloci) visit((malloci) it);
-        else if (it instanceof move) visit((move) it);
-        else if (it instanceof reter) visit((reter) it);
-        else if (it instanceof store) visit((store) it);
-        else assert (false);
-    }
-
-    @Override
     public void visit(Function it) {
         asmFunction = new AsmFunction();
         for (var b : it.basicBlocks) {
@@ -97,7 +77,7 @@ public class AsmBuilder extends Pass {
     @Override
     public void visit(BasicBlock basicBlock) {
         asmBasicBlock = new AsmBasicBlock(basicBlock.name);
-        for (var s : basicBlock.stmts()) {
+        for (var s : basicBlock.stmts) {
             s.accept(this);
         }
     }
@@ -158,7 +138,7 @@ public class AsmBuilder extends Pass {
 
     public void visit(loadinst it) {
         asmBasicBlock.push_back(new li(Reg.dest, it.constant));
-        srp(Reg.dest, it.reg);
+        srp(Reg.dest, it.pointer);
     }
 
     public void visit(loadrinst it) {
@@ -172,7 +152,7 @@ public class AsmBuilder extends Pass {
     public void visit(malloci it) {
         asmBasicBlock.push_back(new li(Reg.a0, it.length));
         asmBasicBlock.push_back(new call("malloc"));
-        srp(Reg.a0, it.register);
+        srp(Reg.a0, it.pointer);
     }
 
     public void visit(move it) {
@@ -186,5 +166,10 @@ public class AsmBuilder extends Pass {
 
     public void visit(store it) {
         srp(RegisterToReg(it.reg), it.pointer);
+    }
+
+    @Override
+    public void visit(blockfirst it) {
+
     }
 }

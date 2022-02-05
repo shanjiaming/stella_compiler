@@ -1,8 +1,8 @@
 package Frontend;
 
 import AST.*;
+import Backend.IRBuilder;
 import IR.PointerRegister;
-import IR.Register;
 import Util.*;
 import Util.MxError.SemanticError;
 
@@ -15,9 +15,9 @@ public class SemanticChecker extends ASTVisitor {
     private ConstructDef currentConstructDef;
     private ReturnStmt currentReturnStmt;
 
-    private int s0Const = -12;
+    private int s0Const = -IRBuilder.STACKSTARTSIZE;
     private int previouss0;
-    private int programframesize = 16;
+    private int programframesize = IRBuilder.STACKSTARTSIZE + 4;
     private void assignaddress(PointerRegister p){
         if (!p.isGlobal) {
         p.address = (s0Const -= 4);
@@ -67,7 +67,7 @@ public class SemanticChecker extends ASTVisitor {
 //            it.parameterIdentifiers.add("this");
 //        }
         previouss0 = s0Const;
-        s0Const = -12;
+        s0Const = -IRBuilder.STACKSTARTSIZE;
         int sz = it.parameterTypes.size();
         if (sz != it.parameterIdentifiers.size())
             throw new SemanticError("function parameters and identifiers numbers do not match", it.pos);
