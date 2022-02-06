@@ -153,7 +153,8 @@ public class FlowAnalyzer extends Pass {
 //            }
 //        }
 
-//        colormap = new HashMap<>();
+
+        colormap = new HashMap<>();
 
         function.colormap = colormap;
 

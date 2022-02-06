@@ -28,7 +28,7 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) throws Exception {
         boolean ir = false;//注：这个irbuilder已经被修改得在有全局变量的情况下irPrinter出来的东西无法工作了。残念。
-        boolean oj = true;
+        boolean oj = false;
 
 //        Scanner scanner = new Scanner(System.in);
 //        String testcaseName;

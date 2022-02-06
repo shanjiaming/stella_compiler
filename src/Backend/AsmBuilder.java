@@ -157,7 +157,7 @@ public class AsmBuilder extends Pass {
     public void visit(binaryi it) {
         Reg op1 = lrp(Reg.op1, it.op1);
         Reg dest = promise(Reg.dest, it.lhs);
-        if (smallEnough(it.op2)) {
+        if (smallEnough(it.op2) && !"*".equals(it.op) && !"/".equals(it.op) && !"%".equals(it.op)) {
             asmBasicBlock.push_back(new asmbinaryi(dest, op1, it.op2, it.op));
         } else {
             asmBasicBlock.push_back(new li(Reg.op2, it.op2));

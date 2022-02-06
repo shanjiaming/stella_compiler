@@ -20,11 +20,11 @@ public class asmbinaryi extends AsmStmt {
         switch (op){
             case "+" -> this.op = "addi";
             case "-" -> this.op = "addi";
-            case "*" -> this.op = "muli";
+//            case "*" -> this.op = "muli";
             case "^" -> this.op = "xori";
 
-            case "/" -> this.op = "divi";
-            case "%" -> this.op = "remi";
+//            case "/" -> this.op = "divi";
+//            case "%" -> this.op = "remi";
 
             case "<<" -> this.op = "slli";
             case ">>" -> this.op = "srai";
