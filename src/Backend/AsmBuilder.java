@@ -208,7 +208,7 @@ public class AsmBuilder extends Pass {
     public void visit(move it) {
         Reg prom = promise(Reg.op1, it.pdest);
         Reg op1 = lrp(prom, it.psrc);
-        srp(op1, it.pdest);
+        srp(op1, it.pdest);//修这个move，然后还要修一个地方。
     }
 
     public void visit(reter it) {

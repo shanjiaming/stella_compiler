@@ -19,6 +19,7 @@ public class PointerRegister extends Entity {
         super();
         val = name;
         this.isGlobal = isGlobal;
+        if(isGlobal) offset = Register.zero;
     }
     public PointerRegister(int val) {
         super();
