@@ -103,9 +103,14 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new store(raPointer, Register.ra));
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
         for (int i = 0; i < 11; ++i) {
-            currentBasicBlock.push_back(new store(new PointerRegister(it.frameSize - 12 - i * 4, Register.sp), Register.ss[i], i));
+            currentBasicBlock.push_back(new store(new PointerRegister(it.frameSize - 12 - i * 4 , Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.frameSize));
+        int pasz = 8;
+        if(it.parameterTypes.size() < 8) pasz = it.parameterTypes.size();
+        for(int i = 0; i < pasz; ++i){
+            currentBasicBlock.push_back(new store(new PointerRegister(-STACKSTARTSIZE - 4*i - 4), Register.a[i]));
+        }
         if ("main".equals(it.name)) {
             currentBasicBlock.push_back(new callfunc("global_init"));
         }
@@ -468,10 +473,13 @@ public class IRBuilder extends ASTVisitor {
         int spConst = -STACKSTARTSIZE;
         int i = 0;
         for (var expr : it.argList) {
-            PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);
-            currentBasicBlock.push_back(new move(pointerRegister, expr.pointerRegister));
-            if (i < 8)
+            if (i < 8) {
                 currentBasicBlock.push_back(new load(expr.pointerRegister, Register.a[i]));
+                spConst -= 4;
+            } else{
+                PointerRegister pointerRegister = new PointerRegister(spConst -= 4, Register.sp);
+                currentBasicBlock.push_back(new move(pointerRegister, expr.pointerRegister));
+            }
             ++i;
         }
         ;

@@ -1,6 +1,8 @@
 
+int x(int a, int b){
+    return a+b;
+}
+
 int main(){
-    int a = 1;
-    int b = 2;
-    printInt(a+b);
+    printInt(x(4,7));
 }
