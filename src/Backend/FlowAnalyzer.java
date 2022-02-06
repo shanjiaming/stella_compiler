@@ -52,7 +52,7 @@ public class FlowAnalyzer extends Pass {
                         for (var b : s.outs) {
                             if (b.equals(((move) s).psrc.address))
                                 break;
-                            if(a.equals(b)) break;
+                            if(a.equals(b)) continue;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
@@ -60,7 +60,7 @@ public class FlowAnalyzer extends Pass {
                 } else {
                     for (var a : s.defs()) {
                         for (var b : s.outs) {
-                            if(a.equals(b)) break;
+                            if(a.equals(b)) continue;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
