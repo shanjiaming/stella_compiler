@@ -73,92 +73,91 @@ public class FlowAnalyzer extends Pass {
         Map<Integer, Integer> colormap = new HashMap<>();
 
 
-//        for(int i = 0; i < 11; ++i){
-//            ContinueFor : for (var node : nodes) {
-//                if(colormap.containsKey(node)) continue;
-//                var crashs = contractmap.get(node);
-//                for(var crash : crashs){
-//                    if(Integer.valueOf(i).equals(colormap.get(crash)))
-//                        continue ContinueFor;
+        boolean[] sxisused = new boolean[11];
+        for(int i = 0; i < 11; ++i){
+            sxisused[i] = false;
+            ContinueFor : for (var node : nodes) {
+                if(colormap.containsKey(node)) continue;
+                var crashs = contractmap.get(node);
+                for(var crash : crashs){
+                    if(Integer.valueOf(i).equals(colormap.get(crash)))
+                        continue ContinueFor;
+                }
+                colormap.put(node, i);
+                sxisused[i] = true;
+            }
+        }
+
+
+//        Stack<Integer> stk = new Stack<>();
+//
+//        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
+//
+//        for (var k : nodes) {
+//            Set<Integer> s = new HashSet<>();
+//            Set<Integer> v = contractmap.get(k);
+//            for (var i : v) {
+//                s.add(i);
+//            }
+//            copygragh.put(k, s);
+//        }
+//
+//
+//        Iterator<Integer> iterator;
+//        while (!copygragh.isEmpty()) {
+//            var ks = copygragh.keySet();
+//            boolean flag = false;
+//            iterator = ks.iterator();
+////            int mindegree = 100000;
+//            while (iterator.hasNext()) {
+//                var k = iterator.next();
+//                Set<Integer> gk = copygragh.get(k);
+//                if (gk.size() < 11) {
+//                    stk.add(k);
+//                    for (var i : gk) {
+//                        copygragh.get(i).remove(k);
+//                    }
+//                    iterator.remove();
+//                    flag = true;
 //                }
-//                colormap.put(node, i);
+////                mindegree = Math.min(mindegree, gk.size());
+//            }
+//            if (!flag) {
+////                for (int ii = 0; ii < mindegree - (11 - 1); ++ii) {
+//                    iterator = ks.iterator();
+//                    var k = iterator.next();
+//                    Set<Integer> gk = copygragh.get(k);
+//                    stk.add(k);
+//                    for (var i : gk) {
+//                        copygragh.get(i).remove(k);
+//                    }
+//                    iterator.remove();
+////                }
 //            }
 //        }
+//
 //        boolean[] sxisused = new boolean[11];
 //        for (int i = 0; i < 11; ++i) {
-//            sxisused[i] = true;
+//            sxisused[i] = false;
 //        }
-
-
-        Stack<Integer> stk = new Stack<>();
-
-        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
-
-        for (var k : nodes) {
-            Set<Integer> s = new HashSet<>();
-            Set<Integer> v = contractmap.get(k);
-            for (var i : v) {
-                s.add(i);
-            }
-            copygragh.put(k, s);
-        }
-
-
-        Iterator<Integer> iterator;
-        while (!copygragh.isEmpty()) {
-            var ks = copygragh.keySet();
-            boolean flag = false;
-            iterator = ks.iterator();
-//            int mindegree = 100000;
-            while (iterator.hasNext()) {
-                var k = iterator.next();
-                Set<Integer> gk = copygragh.get(k);
-                if (gk.size() < 11) {
-                    stk.add(k);
-                    for (var i : gk) {
-                        copygragh.get(i).remove(k);
-                    }
-                    iterator.remove();
-                    flag = true;
-                }
-//                mindegree = Math.min(mindegree, gk.size());
-            }
-            if (!flag) {
-//                for (int ii = 0; ii < mindegree - (11 - 1); ++ii) {
-                    iterator = ks.iterator();
-                    var k = iterator.next();
-                    Set<Integer> gk = copygragh.get(k);
-                    stk.add(k);
-                    for (var i : gk) {
-                        copygragh.get(i).remove(k);
-                    }
-                    iterator.remove();
+//
+//        while (!stk.isEmpty()) {
+//            var k = stk.pop();
+//            boolean[] barray = new boolean[11];
+//            for (int i = 0; i < 11; ++i) {
+//                barray[i] = true;
+//            }
+//            for (var v : contractmap.get(k)) {
+//                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
+//            }
+//            for (int i = 0; i < 11; ++i) {
+//                if (barray[i]) {
+//                    colormap.put(k, i);
+//                    sxisused[i] = true;
+//                    break;
 //                }
-            }
-        }
-
-        boolean[] sxisused = new boolean[11];
-        for (int i = 0; i < 11; ++i) {
-            sxisused[i] = false;
-        }
-
-        while (!stk.isEmpty()) {
-            var k = stk.pop();
-            boolean[] barray = new boolean[11];
-            for (int i = 0; i < 11; ++i) {
-                barray[i] = true;
-            }
-            for (var v : contractmap.get(k)) {
-                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
-            }
-            for (int i = 0; i < 11; ++i) {
-                if (barray[i]) {
-                    colormap.put(k, i);
-                    sxisused[i] = true;
-                    break;
-                }
-            }
-        }
+//            }
+//        }
 
 
 //        colormap = new HashMap<>();
