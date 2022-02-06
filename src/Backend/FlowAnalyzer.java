@@ -40,7 +40,7 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
-        for(var node : nodes){
+        for (var node : nodes) {
             contractmap.put(node, new HashSet<>());
         }
 
@@ -52,6 +52,7 @@ public class FlowAnalyzer extends Pass {
                         for (var b : s.outs) {
                             if (b.equals(((move) s).psrc.address))
                                 break;
+                            if(a.equals(b)) break;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
@@ -59,6 +60,7 @@ public class FlowAnalyzer extends Pass {
                 } else {
                     for (var a : s.defs()) {
                         for (var b : s.outs) {
+                            if(a.equals(b)) break;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
@@ -69,7 +71,6 @@ public class FlowAnalyzer extends Pass {
 
 
         Map<Integer, Integer> colormap = new HashMap<>();
-
 
 
 //        for(int i = 0; i < 11; ++i){
@@ -83,6 +84,11 @@ public class FlowAnalyzer extends Pass {
 //                colormap.put(node, i);
 //            }
 //        }
+//        boolean[] sxisused = new boolean[11];
+//        for (int i = 0; i < 11; ++i) {
+//            sxisused[i] = true;
+//        }
+
 
         Stack<Integer> stk = new Stack<>();
 
@@ -103,12 +109,10 @@ public class FlowAnalyzer extends Pass {
             var ks = copygragh.keySet();
             boolean flag = false;
             iterator = ks.iterator();
+//            int mindegree = 100000;
             while (iterator.hasNext()) {
                 var k = iterator.next();
-                Set<Integer> gk = new HashSet<>();
-                for(var i : copygragh.get(k)){
-                    gk.add(i);
-                }
+                Set<Integer> gk = copygragh.get(k);
                 if (gk.size() < 11) {
                     stk.add(k);
                     for (var i : gk) {
@@ -117,22 +121,19 @@ public class FlowAnalyzer extends Pass {
                     iterator.remove();
                     flag = true;
                 }
+//                mindegree = Math.min(mindegree, gk.size());
             }
             if (!flag) {
-                iterator = ks.iterator();
-                while (iterator.hasNext()) {
+//                for (int ii = 0; ii < mindegree - (11 - 1); ++ii) {
+                    iterator = ks.iterator();
                     var k = iterator.next();
-                    Set<Integer> gk = new HashSet<>();
-                    for(var i : copygragh.get(k)){
-                        gk.add(i);
-                    }
+                    Set<Integer> gk = copygragh.get(k);
                     stk.add(k);
                     for (var i : gk) {
                         copygragh.get(i).remove(k);
                     }
                     iterator.remove();
-                    break;
-                }
+//                }
             }
         }
 
@@ -141,18 +142,18 @@ public class FlowAnalyzer extends Pass {
             sxisused[i] = false;
         }
 
-        while (!stk.isEmpty()){
+        while (!stk.isEmpty()) {
             var k = stk.pop();
             boolean[] barray = new boolean[11];
             for (int i = 0; i < 11; ++i) {
                 barray[i] = true;
             }
-            for(var v : contractmap.get(k)){
-                if(colormap.containsKey(v)) barray[colormap.get(v)] = false;
+            for (var v : contractmap.get(k)) {
+                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
             }
             for (int i = 0; i < 11; ++i) {
-                if(barray[i]){
-                    colormap.put(k,i);
+                if (barray[i]) {
+                    colormap.put(k, i);
                     sxisused[i] = true;
                     break;
                 }
