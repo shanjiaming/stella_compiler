@@ -4,10 +4,7 @@ import Asm.Reg;
 import IR.*;
 import IR.Instruction.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class FlowAnalyzer extends Pass {
 
@@ -43,7 +40,7 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
-        for (var node : nodes) {
+        for(var node : nodes){
             contractmap.put(node, new HashSet<>());
         }
 
@@ -70,7 +67,10 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
-        Map <Integer, Integer> colormap = new HashMap<>();
+
+        Map<Integer, Integer> colormap = new HashMap<>();
+
+
 
         for(int i = 0; i < 11; ++i){
             ContinueFor : for (var node : nodes) {
@@ -84,7 +84,78 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
-        //染色完毕，只等分配了
+//        Stack<Integer> stk = new Stack<>();
+//
+//        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
+//
+//        for (var k : nodes) {
+//            Set<Integer> s = new HashSet<>();
+//            Set<Integer> v = contractmap.get(k);
+//            for (var i : v) {
+//                s.add(i);
+//            }
+//            copygragh.put(k, s);
+//        }
+//
+//
+//        Iterator<Integer> iterator;
+//        while (!copygragh.isEmpty()) {
+//            var ks = copygragh.keySet();
+//            boolean flag = false;
+//            iterator = ks.iterator();
+//            while (iterator.hasNext()) {
+//                var k = iterator.next();
+//                Set<Integer> gk = new HashSet<>();
+//                for(var i : copygragh.get(k)){
+//                    gk.add(i);
+//                }
+//                if (gk.size() < 11) {
+//                    stk.add(k);
+//                    for (var i : gk) {
+//                        copygragh.get(i).remove(k);
+//                    }
+//                    iterator.remove();
+//                    flag = true;
+//                }
+//            }
+//            if (!flag) {
+//                iterator = ks.iterator();
+//                while (iterator.hasNext()) {
+//                    var k = iterator.next();
+//                    Set<Integer> gk = new HashSet<>();
+//                    for(var i : copygragh.get(k)){
+//                        gk.add(i);
+//                    }
+//                    stk.add(k);
+//                    for (var i : gk) {
+//                        copygragh.get(i).remove(k);
+//                    }
+//                    iterator.remove();
+//                    break;
+//                }
+//            }
+//        }
+//
+//        while (!stk.isEmpty()){
+//            var k = stk.pop();
+//            boolean[] barray = new boolean[11];
+//            for (int i = 0; i < 11; ++i) {
+//                barray[i] = true;
+//            }
+//            for(var v : contractmap.get(k)){
+//                if(colormap.containsKey(k)) barray[colormap.get(k)] = false;
+//            }
+//            for (int i = 0; i < 11; ++i) {
+//                if(barray[i]){
+//                    colormap.put(k,i);
+//                    break;
+//                }
+//            }
+//        }
+
+//        colormap = new HashMap<>();
+
+        function.colormap = colormap;
 
 
     }

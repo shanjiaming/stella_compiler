@@ -5,6 +5,7 @@ import java.util.*;
 public class Function {
     public BasicBlock fnBasicBlock = new BasicBlock();
     public ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
+    public Map<Integer, Integer> colormap;
 
 
     public Function(String name, BasicBlock basicBlock) {
