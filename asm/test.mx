@@ -2,11 +2,5 @@
 int main(){
     int a = 1;
     int b = 2;
-    int c = 3;
-    int d = 4;
-    int e = 5;
-    int i;
-    for(i = 0; i < 3; ++i){
-//        --c;
-    }
+    printInt(a+b);
 }

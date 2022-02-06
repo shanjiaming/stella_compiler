@@ -217,7 +217,7 @@ public class IRPrinter extends IRPass {
         for (int i = 0; i < 30 - space; ++i) sb.append(" ");
         sb.append(stmtstr);
         for (int i = 0; i < 30 + space - stmtstr.length(); ++i) sb.append(" ");
-        println(sb.toString() + "               \t//" + statement.getClass().getSimpleName());
+        println(sb.toString() + "               \t//" + statement.getClass().getSimpleName() + "\t ins = " + statement.ins + "\t outs = " + statement.outs + "\t defs = " + statement.defs() + "\t uses = " + statement.uses());
 //        println("\t\t" + stmtstr +  "               \t//" + statement.getClass().getName());
     }
 

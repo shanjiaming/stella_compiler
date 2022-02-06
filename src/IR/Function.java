@@ -6,6 +6,7 @@ public class Function {
     public BasicBlock fnBasicBlock = new BasicBlock();
     public ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
     public Map<Integer, Integer> colormap;
+    public boolean[] sxisused;
 
 
     public Function(String name, BasicBlock basicBlock) {

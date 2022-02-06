@@ -23,6 +23,7 @@ public class AsmBuilder extends Pass {
     public AsmBasicBlock asmBasicBlock;
 
     private Map<Integer, Integer> colormap;
+    private boolean[] sxisused;
 
     public AsmBuilder(IREntry irEntry, AsmEntry asmEntry) {
         super(irEntry);
@@ -77,7 +78,7 @@ public class AsmBuilder extends Pass {
         Reg ret = reg;
         if (colored(pointerRegister)) {
             ret = Reg.ss[colormap.get(pointerRegister.address)];
-            if (reg != ret) asmBasicBlock.push_back(new mv(ret, reg));
+            if (reg != ret) asmBasicBlock.push_back(new mv(reg, ret));
         } else {
             asmBasicBlock.push_back(new lw(reg, pointerRegisterToAddr(pointerRegister)));
         }
@@ -95,7 +96,7 @@ public class AsmBuilder extends Pass {
     private void srp(Reg reg, PointerRegister pointerRegister) {
         if (colored(pointerRegister)) {
             Reg ret = Reg.ss[colormap.get(pointerRegister.address)];
-            if (reg != ret) asmBasicBlock.push_back(new mv(reg, ret));
+            if (reg != ret) asmBasicBlock.push_back(new mv(ret, reg));
         } else {
             asmBasicBlock.push_back(new sw(reg, pointerRegisterToAddr(pointerRegister)));
         }
@@ -105,6 +106,7 @@ public class AsmBuilder extends Pass {
     @Override
     public void visit(Function it) {
         colormap = it.colormap;
+        sxisused = it.sxisused;
         asmFunction = new AsmFunction();
         for (var b : it.basicBlocks) {
             visit(b);
@@ -193,6 +195,7 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(load it) {
+        if(it.removeNumber > -10 && !sxisused[it.removeNumber]) return;
         lrp(RegisterToReg(it.reg), it.pointer);
     }
 
@@ -213,6 +216,7 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(store it) {
+        if(it.removeNumber > -10 && !sxisused[it.removeNumber]) return;
         srp(RegisterToReg(it.reg), it.pointer);
     }
 

@@ -10,10 +10,17 @@ import java.util.Set;
 public class store extends Statement {
 	public PointerRegister pointer;
 	public Register reg;
+	public int removeNumber = -100;
 	public store(PointerRegister pointer, Register reg) {
 		super();
 		this.pointer = pointer;
 		this.reg = reg;
+	}
+	public store(PointerRegister pointer, Register reg, int rm) {
+		super();
+		this.pointer = pointer;
+		this.reg = reg;
+		this.removeNumber = rm;
 	}
 	@Override public String toString() {
 		return pointer + " = " + reg;}

@@ -50,7 +50,7 @@ public class FlowAnalyzer extends Pass {
                 if (s instanceof move) {
                     for (var a : s.defs()) {
                         for (var b : s.outs) {
-                            if (((move) s).psrc.offset == Register.s0 && b.equals(((move) s).psrc.address))
+                            if (b.equals(((move) s).psrc.address))
                                 break;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
@@ -72,91 +72,98 @@ public class FlowAnalyzer extends Pass {
 
 
 
-        for(int i = 0; i < 11; ++i){
-            ContinueFor : for (var node : nodes) {
-                if(colormap.containsKey(node)) continue;
-                var crashs = contractmap.get(node);
-                for(var crash : crashs){
-                    if(Integer.valueOf(i).equals(colormap.get(crash)))
-                        continue ContinueFor;
+//        for(int i = 0; i < 11; ++i){
+//            ContinueFor : for (var node : nodes) {
+//                if(colormap.containsKey(node)) continue;
+//                var crashs = contractmap.get(node);
+//                for(var crash : crashs){
+//                    if(Integer.valueOf(i).equals(colormap.get(crash)))
+//                        continue ContinueFor;
+//                }
+//                colormap.put(node, i);
+//            }
+//        }
+
+        Stack<Integer> stk = new Stack<>();
+
+        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
+
+        for (var k : nodes) {
+            Set<Integer> s = new HashSet<>();
+            Set<Integer> v = contractmap.get(k);
+            for (var i : v) {
+                s.add(i);
+            }
+            copygragh.put(k, s);
+        }
+
+
+        Iterator<Integer> iterator;
+        while (!copygragh.isEmpty()) {
+            var ks = copygragh.keySet();
+            boolean flag = false;
+            iterator = ks.iterator();
+            while (iterator.hasNext()) {
+                var k = iterator.next();
+                Set<Integer> gk = new HashSet<>();
+                for(var i : copygragh.get(k)){
+                    gk.add(i);
                 }
-                colormap.put(node, i);
+                if (gk.size() < 11) {
+                    stk.add(k);
+                    for (var i : gk) {
+                        copygragh.get(i).remove(k);
+                    }
+                    iterator.remove();
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                iterator = ks.iterator();
+                while (iterator.hasNext()) {
+                    var k = iterator.next();
+                    Set<Integer> gk = new HashSet<>();
+                    for(var i : copygragh.get(k)){
+                        gk.add(i);
+                    }
+                    stk.add(k);
+                    for (var i : gk) {
+                        copygragh.get(i).remove(k);
+                    }
+                    iterator.remove();
+                    break;
+                }
             }
         }
 
-//        Stack<Integer> stk = new Stack<>();
-//
-//        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
-//
-//        for (var k : nodes) {
-//            Set<Integer> s = new HashSet<>();
-//            Set<Integer> v = contractmap.get(k);
-//            for (var i : v) {
-//                s.add(i);
-//            }
-//            copygragh.put(k, s);
-//        }
-//
-//
-//        Iterator<Integer> iterator;
-//        while (!copygragh.isEmpty()) {
-//            var ks = copygragh.keySet();
-//            boolean flag = false;
-//            iterator = ks.iterator();
-//            while (iterator.hasNext()) {
-//                var k = iterator.next();
-//                Set<Integer> gk = new HashSet<>();
-//                for(var i : copygragh.get(k)){
-//                    gk.add(i);
-//                }
-//                if (gk.size() < 11) {
-//                    stk.add(k);
-//                    for (var i : gk) {
-//                        copygragh.get(i).remove(k);
-//                    }
-//                    iterator.remove();
-//                    flag = true;
-//                }
-//            }
-//            if (!flag) {
-//                iterator = ks.iterator();
-//                while (iterator.hasNext()) {
-//                    var k = iterator.next();
-//                    Set<Integer> gk = new HashSet<>();
-//                    for(var i : copygragh.get(k)){
-//                        gk.add(i);
-//                    }
-//                    stk.add(k);
-//                    for (var i : gk) {
-//                        copygragh.get(i).remove(k);
-//                    }
-//                    iterator.remove();
-//                    break;
-//                }
-//            }
-//        }
-//
-//        while (!stk.isEmpty()){
-//            var k = stk.pop();
-//            boolean[] barray = new boolean[11];
-//            for (int i = 0; i < 11; ++i) {
-//                barray[i] = true;
-//            }
-//            for(var v : contractmap.get(k)){
-//                if(colormap.containsKey(k)) barray[colormap.get(k)] = false;
-//            }
-//            for (int i = 0; i < 11; ++i) {
-//                if(barray[i]){
-//                    colormap.put(k,i);
-//                    break;
-//                }
-//            }
-//        }
+        boolean[] sxisused = new boolean[11];
+        for (int i = 0; i < 11; ++i) {
+            sxisused[i] = false;
+        }
+
+        while (!stk.isEmpty()){
+            var k = stk.pop();
+            boolean[] barray = new boolean[11];
+            for (int i = 0; i < 11; ++i) {
+                barray[i] = true;
+            }
+            for(var v : contractmap.get(k)){
+                if(colormap.containsKey(v)) barray[colormap.get(v)] = false;
+            }
+            for (int i = 0; i < 11; ++i) {
+                if(barray[i]){
+                    colormap.put(k,i);
+                    sxisused[i] = true;
+                    break;
+                }
+            }
+        }
 
 
-        colormap = new HashMap<>();
+//        colormap = new HashMap<>();
 
         function.colormap = colormap;
+        function.sxisused = sxisused;
 
 
     }

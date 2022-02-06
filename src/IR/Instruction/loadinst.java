@@ -23,13 +23,13 @@ public class loadinst extends Statement {
     @Override
     public Set<Integer> defs() {
         Set<Integer> ret = new HashSet<>();
+        addIfIsVirtualRegister(ret, pointer);
         return ret;
     }
 
     @Override
     public Set<Integer> uses() {
         Set<Integer> ret = new HashSet<>();
-        addIfIsVirtualRegister(ret, pointer);
         return ret;
     }
 

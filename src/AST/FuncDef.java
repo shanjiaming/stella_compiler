@@ -15,7 +15,7 @@ public class FuncDef extends ASTNode implements ProgramUnit{
     public SuiteStmt body;
     public String name;
     public ArrayList<PointerRegister> vars = new ArrayList<>();
-    public static int frameSize = IRBuilder.STACKSTARTSIZE;
+    public static int  frameSize = IRBuilder.STACKSTARTSIZE;
 
     public FuncDef(String name, SuiteStmt body, Type returnType) {
         this.name = name;
