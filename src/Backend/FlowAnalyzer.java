@@ -100,6 +100,17 @@ public class FlowAnalyzer extends Pass {
             }
         }
 
+//        int colored = 0;
+//        int notcolored = 0;
+//
+//        for(var node : nodes){
+//            if(colormap.containsKey(node)){
+//                colored++;
+//            }else {
+//                notcolored++;
+//            }
+//        }
+//        System.out.println("colored = " + colored + " not colored = "+ notcolored);
 
 //        Stack<Integer> stk = new Stack<>();
 //

@@ -126,18 +126,6 @@ public class AsmBuilder extends Pass {
 
     public void visit(binary it) {
 
-
-//        if ("<=".equals(it.op)) {
-//            var lhs = washdest(it.lhs);
-//            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op2), entityToReg(it.op1), "<"));
-//            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
-//        } else if (">".equals(it.op)) {
-//            asmBasicBlock.push_back(new asmbinary(washdest(it.lhs), entityToReg(it.op2), entityToReg(it.op1), "<"));
-//        } else if (">=".equals(it.op)) {
-//            var lhs = washdest(it.lhs);
-//            asmBasicBlock.push_back(new asmbinary(lhs, entityToReg(it.op1), entityToReg(it.op2), "<"));
-//            asmBasicBlock.push_back(new asmbinaryi(lhs, lhs, 1, "^"));
-//        } else {
         Reg op1 = lrp(Reg.op1, it.op1);
         Reg op2 = lrp(Reg.op2, it.op2);
         Reg dest = promise(Reg.dest, it.lhs);
@@ -206,9 +194,23 @@ public class AsmBuilder extends Pass {
     }
 
     public void visit(move it) {
-        Reg prom = promise(Reg.op1, it.pdest);
-        Reg op1 = lrp(prom, it.psrc);
-        srp(op1, it.pdest);//修这个move，然后还要修一个地方。
+        Reg promdest = promise(Reg.op1, it.pdest);
+        Reg promsrc = promise(Reg.op1, it.psrc);
+        if(promdest != Reg.op1 && promsrc != Reg.op1){
+            if(promdest == promsrc) return;
+            asmBasicBlock.push_back(new mv(promdest, promsrc));
+            return;
+        }
+        if(promsrc != Reg.op1){
+            srp(promsrc, it.pdest);
+            return;
+        }
+        if(promdest != Reg.op1){
+            lrp(promdest, it.psrc);
+            return;
+        }
+        lrp(Reg.op1, it.psrc);
+        srp(Reg.op1, it.pdest);//修这个move，然后还要修一个地方。
     }
 
     public void visit(reter it) {
