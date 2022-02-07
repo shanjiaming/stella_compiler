@@ -7,6 +7,7 @@ public class Function {
     public ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
     public Map<Integer, Integer> colormap;
     public boolean[] sxisused;
+    public boolean nocall = false;
 
 
     public Function(String name, BasicBlock basicBlock) {

@@ -11,6 +11,7 @@ public class store extends Statement {
 	public PointerRegister pointer;
 	public Register reg;
 	public int removeNumber = -100;
+	public boolean mayBeRemovedBeacuseNoCall = false;
 	public store(PointerRegister pointer, Register reg) {
 		super();
 		this.pointer = pointer;
@@ -21,6 +22,19 @@ public class store extends Statement {
 		this.pointer = pointer;
 		this.reg = reg;
 		this.removeNumber = rm;
+	}
+	public store(PointerRegister pointer, Register reg, boolean rmc) {
+		super();
+		this.pointer = pointer;
+		this.reg = reg;
+		this.mayBeRemovedBeacuseNoCall = rmc;
+	}
+	public store(PointerRegister pointer, Register reg, int rm, boolean rmc) {
+		super();
+		this.pointer = pointer;
+		this.reg = reg;
+		this.removeNumber = rm;
+		this.mayBeRemovedBeacuseNoCall = rmc;
 	}
 	@Override public String toString() {
 		return pointer + " = " + reg;}

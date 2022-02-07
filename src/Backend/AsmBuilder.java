@@ -24,6 +24,7 @@ public class AsmBuilder extends Pass {
 
     private Map<Integer, Integer> colormap;
     private boolean[] sxisused;
+    private boolean nocall = false;
 
     public AsmBuilder(IREntry irEntry, AsmEntry asmEntry) {
         super(irEntry);
@@ -107,6 +108,7 @@ public class AsmBuilder extends Pass {
     public void visit(Function it) {
         colormap = it.colormap;
         sxisused = it.sxisused;
+        nocall = it.nocall;
         asmFunction = new AsmFunction();
         for (var b : it.basicBlocks) {
             visit(b);
@@ -184,6 +186,7 @@ public class AsmBuilder extends Pass {
 
     public void visit(load it) {
         if(it.removeNumber > -10 && !sxisused[it.removeNumber]) return;
+        if(it.mayBeRemovedBeacuseNoCall && nocall) return;
         lrp(RegisterToReg(it.reg), it.pointer);
     }
 
@@ -219,6 +222,7 @@ public class AsmBuilder extends Pass {
 
     public void visit(store it) {
         if(it.removeNumber > -10 && !sxisused[it.removeNumber]) return;
+        if(it.mayBeRemovedBeacuseNoCall && nocall) return;
         srp(RegisterToReg(it.reg), it.pointer);
     }
 

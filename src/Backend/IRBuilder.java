@@ -46,8 +46,8 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.globalframesize));
         PointerRegister raPointer = new PointerRegister(it.globalframesize - 4, Register.sp);
         PointerRegister s0Pointer = new PointerRegister(it.globalframesize - 8, Register.sp);
-        currentBasicBlock.push_back(new store(raPointer, Register.ra));//这两个寄存器的操作也可以化成s0版本的
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new store(raPointer, Register.ra, true));//这两个寄存器的操作也可以化成s0版本的
+        currentBasicBlock.push_back(new store(s0Pointer, Register.s0, true));
         for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new store(new PointerRegister(it.globalframesize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
@@ -62,8 +62,8 @@ public class IRBuilder extends ASTVisitor {
         for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new load(new PointerRegister(it.globalframesize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
-        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new load(raPointer, Register.ra));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0, true));
+        currentBasicBlock.push_back(new load(raPointer, Register.ra, true));
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, it.globalframesize));
         currentBasicBlock.push_back(new reter());
 
@@ -100,8 +100,8 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, -it.frameSize));
         PointerRegister raPointer = new PointerRegister(it.frameSize - 4, Register.sp);
         PointerRegister s0Pointer = new PointerRegister(it.frameSize - 8, Register.sp);
-        currentBasicBlock.push_back(new store(raPointer, Register.ra));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new store(raPointer, Register.ra, true));
+        currentBasicBlock.push_back(new store(s0Pointer, Register.s0, true));
         for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new store(new PointerRegister(it.frameSize - 12 - i * 4 , Register.sp), Register.ss[i], i));
         }
@@ -130,8 +130,8 @@ public class IRBuilder extends ASTVisitor {
         for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new load(new PointerRegister(it.frameSize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
-        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new load(raPointer, Register.ra));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0, true));
+        currentBasicBlock.push_back(new load(raPointer, Register.ra, true));
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, it.frameSize));
         currentBasicBlock.push_back(new reter());
     }

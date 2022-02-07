@@ -26,8 +26,6 @@ public class Register extends Entity {
     public static Register zero = new Register("zero");
     public static Register index = new Register("index");
     public static Register[] ss = new Register[]{
-            new Register("gp"),
-            new Register("tp"),
             new Register("s1"),
             new Register("s2"),
             new Register("s3"),
@@ -39,6 +37,8 @@ public class Register extends Entity {
             new Register("s9"),
             new Register("s10"),
             new Register("s11"),
+            new Register("gp"),
+            new Register("tp"),
     };
 
 

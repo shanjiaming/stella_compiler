@@ -52,7 +52,7 @@ public class FlowAnalyzer extends Pass {
                         for (var b : s.outs) {
                             if (b.equals(((move) s).psrc.address))
                                 continue;
-                            if(a.equals(b)) continue;
+                            if (a.equals(b)) continue;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
@@ -60,7 +60,7 @@ public class FlowAnalyzer extends Pass {
                 } else {
                     for (var a : s.defs()) {
                         for (var b : s.outs) {
-                            if(a.equals(b)) continue;
+                            if (a.equals(b)) continue;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
                         }
@@ -79,20 +79,21 @@ public class FlowAnalyzer extends Pass {
             @Override
             public int compare(Integer o1, Integer o2) {
                 int x = contractmap.get(o1).size() - contractmap.get(o2).size();
-                if(x > 0) return 1;
-                if(x < 0) return -1;
+                if (x > 0) return 1;
+                if (x < 0) return -1;
                 return 0;
             }
         });
 
         boolean[] sxisused = new boolean[Register.ssSIZE];
-        for(int i = 0; i < Register.ssSIZE; ++i){
+        for (int i = 0; i < Register.ssSIZE; ++i) {
             sxisused[i] = false;
-            ContinueFor : for (var node : nodess) {
-                if(colormap.containsKey(node)) continue;
+            ContinueFor:
+            for (var node : nodess) {
+                if (colormap.containsKey(node)) continue;
                 var crashs = contractmap.get(node);
-                for(var crash : crashs){
-                    if(Integer.valueOf(i).equals(colormap.get(crash)))
+                for (var crash : crashs) {
+                    if (Integer.valueOf(i).equals(colormap.get(crash)))
                         continue ContinueFor;
                 }
                 colormap.put(node, i);
@@ -187,6 +188,19 @@ public class FlowAnalyzer extends Pass {
 
         function.colormap = colormap;
         function.sxisused = sxisused;
+
+
+        boolean nocall = true;
+        BFunc:
+        for (BasicBlock b : function.basicBlocks) {
+            for (Statement s : b.stmts) {
+                if (s instanceof callfunc || s instanceof malloci) {
+                    nocall = false;
+                    break BFunc;
+                }
+            }
+        }
+        function.nocall = nocall;
 
 
     }

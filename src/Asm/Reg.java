@@ -26,8 +26,6 @@ public class Reg {
 
     public static Reg zero = new Reg("zero");
     public static Reg[] ss = new Reg[]{
-            new Reg("gp"),
-            new Reg("tp"),
             new Reg("s1"),
             new Reg("s2"),
             new Reg("s3"),
@@ -39,6 +37,8 @@ public class Reg {
             new Reg("s9"),
             new Reg("s10"),
             new Reg("s11"),
+            new Reg("gp"),
+            new Reg("tp"),
     };
 
     public Reg(String name){

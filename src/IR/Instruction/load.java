@@ -12,6 +12,7 @@ public class load extends Statement {
 	public PointerRegister pointer;
 	public Register reg;
 	public int removeNumber = -100;
+	public boolean mayBeRemovedBeacuseNoCall = false;
 	public load(PointerRegister pointer, Register reg) {
 		super();
 		this.pointer = pointer;
@@ -22,6 +23,20 @@ public class load extends Statement {
 		this.pointer = pointer;
 		this.reg = reg;
 		this.removeNumber = rm;
+	}
+
+	public load(PointerRegister pointer, Register reg, boolean rmc) {
+		super();
+		this.pointer = pointer;
+		this.reg = reg;
+		this.mayBeRemovedBeacuseNoCall = rmc;
+	}
+	public load(PointerRegister pointer, Register reg, int rm, boolean rmc) {
+		super();
+		this.pointer = pointer;
+		this.reg = reg;
+		this.removeNumber = rm;
+		this.mayBeRemovedBeacuseNoCall = rmc;
 	}
 	@Override public String toString() {
 		if(pointer == null){
