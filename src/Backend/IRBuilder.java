@@ -102,14 +102,6 @@ public class IRBuilder extends ASTVisitor {
         PointerRegister s0Pointer = new PointerRegister(it.frameSize - 8, Register.sp);
         currentBasicBlock.push_back(new store(raPointer, Register.ra));
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
         for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new store(new PointerRegister(it.frameSize - 12 - i * 4 , Register.sp), Register.ss[i], i));
         }
@@ -203,10 +195,16 @@ public class IRBuilder extends ASTVisitor {
         }
     }
 
+    private boolean needtoread = true;
+
+
     @Override
     public void visit(AssignExpr it) {
+        needtoread = false;
         it.lhs.accept(this);
+        needtoread = true;
         it.rhs.accept(this);
+
         if (it.lhs instanceof VarExpr && ((VarExpr) it.lhs).proxyThis != null) it.lhs = ((VarExpr) it.lhs).proxyThis;
         if (it.lhs instanceof AddressNode) {
             currentBasicBlock.push_back(new load(((AddressNode) it.lhs).addressPointer, Register.index));
@@ -319,12 +317,13 @@ public class IRBuilder extends ASTVisitor {
     @Override
     public void visit(PrefixExpr it) {
         it.lhs.accept(this);
+
         assert (Type.INT_TYPE.equals(it.lhs.type));
         if (it.lhs instanceof VarExpr && ((VarExpr) it.lhs).proxyThis != null) it.lhs = ((VarExpr) it.lhs).proxyThis;
         if (it.lhs instanceof AddressNode) {
+            currentBasicBlock.push_back(new binaryi(it.lhs.pointerRegister, it.lhs.pointerRegister, 1, it.op.substring(1)));
             currentBasicBlock.push_back(new load(((AddressNode) it.lhs).addressPointer, Register.index));
-            currentBasicBlock.push_back(new binaryi(new PointerRegister(0, Register.index), new PointerRegister(0, Register.index), 1, it.op.substring(1)));
-            currentBasicBlock.push_back(new move(it.lhs.pointerRegister, new PointerRegister(0, Register.index)));
+            currentBasicBlock.push_back(new move(new PointerRegister(0, Register.index), it.lhs.pointerRegister));
         } else
             currentBasicBlock.push_back(new binaryi(it.lhs.pointerRegister, it.lhs.pointerRegister, 1, it.op.substring(1)));
     }
@@ -332,12 +331,13 @@ public class IRBuilder extends ASTVisitor {
     @Override
     public void visit(SuffixExpr it) {
         it.lhs.accept(this);
+
         assert (Type.INT_TYPE.equals(it.lhs.type));
         currentBasicBlock.push_back(new move(it.pointerRegister, it.lhs.pointerRegister));
         if (it.lhs instanceof VarExpr && ((VarExpr) it.lhs).proxyThis != null) it.lhs = ((VarExpr) it.lhs).proxyThis;
         if (it.lhs instanceof AddressNode) {
             currentBasicBlock.push_back(new load(((AddressNode) it.lhs).addressPointer, Register.index));
-            currentBasicBlock.push_back(new binaryi(new PointerRegister(0, Register.index), new PointerRegister(0, Register.index), 1, it.op.substring(1)));
+            currentBasicBlock.push_back(new binaryi(new PointerRegister(0, Register.index), it.lhs.pointerRegister, 1, it.op.substring(1)));
         } else
             currentBasicBlock.push_back(new binaryi(it.lhs.pointerRegister, it.lhs.pointerRegister, 1, it.op.substring(1)));
     }
@@ -375,6 +375,7 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock.push_back(new load(pointerRegister3, Register.a1));
 
         currentBasicBlock.push_back(new callfunc("ir_new_array"));
+
         currentBasicBlock.push_back(new store(it.pointerRegister, Register.a0));
 
 //        FuncCallExpr funcCallExpr = new FuncCallExpr("ir_new_array");
@@ -451,25 +452,36 @@ public class IRBuilder extends ASTVisitor {
         currentBasicBlock = afterBreakBlock;
     }
 
+
     @Override
     public void visit(IndexExpr it) {
+        boolean patyneedtoread = needtoread;
+        needtoread = true;
         it.lhs.accept(this);
         it.rhs.accept(this);
 
         currentBasicBlock.push_back(new binaryi(((IndexExpr) it).tempPointer, it.rhs.pointerRegister, 2, "<<"));
         currentBasicBlock.push_back(new binary(it.addressPointer, it.lhs.pointerRegister, ((IndexExpr) it).tempPointer, "+"));
-        currentBasicBlock.push_back(new load(it.addressPointer, Register.index));
-        currentBasicBlock.push_back(new move(it.pointerRegister, new PointerRegister(0, Register.index)));
+        if(patyneedtoread) {
+            currentBasicBlock.push_back(new load(it.addressPointer, Register.index));
+            currentBasicBlock.push_back(new move(it.pointerRegister, new PointerRegister(0, Register.index)));
+        }else{
+
+        }
     }
 
     @Override
     public void visit(MemberExpr it) {
         //copy from up
+        boolean patyneedtoread = needtoread;
+        needtoread = true;
         it.lhs.accept(this);
 
         currentBasicBlock.push_back(new binaryi(it.addressPointer, it.lhs.pointerRegister, it.lhs.type.getClassDef().offsets.get(it.rhs.name), "+"));
-        currentBasicBlock.push_back(new load(it.addressPointer, Register.index));
-        currentBasicBlock.push_back(new move(it.pointerRegister, new PointerRegister(0, Register.index)));
+        if(patyneedtoread) {
+            currentBasicBlock.push_back(new load(it.addressPointer, Register.index));
+            currentBasicBlock.push_back(new move(it.pointerRegister, new PointerRegister(0, Register.index)));
+        }
     }
 
     @Override
