@@ -72,11 +72,23 @@ public class FlowAnalyzer extends Pass {
 
         Map<Integer, Integer> colormap = new HashMap<>();
 
+        ArrayList<Integer> nodess = new ArrayList<>(nodes);
+
+        Collections.sort(nodess, new Comparator<Integer>() {
+
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                int x = contractmap.get(o1).size() - contractmap.get(o2).size();
+                if(x > 0) return 1;
+                if(x < 0) return -1;
+                return 0;
+            }
+        });
 
         boolean[] sxisused = new boolean[11];
         for(int i = 0; i < 11; ++i){
             sxisused[i] = false;
-            ContinueFor : for (var node : nodes) {
+            ContinueFor : for (var node : nodess) {
                 if(colormap.containsKey(node)) continue;
                 var crashs = contractmap.get(node);
                 for(var crash : crashs){
