@@ -23,7 +23,7 @@ public class IRBuilder extends ASTVisitor {
 
     private boolean isGlobal = false;
 
-    public static int STACKSTARTSIZE = 12 + 4 * 11;
+    public static int STACKSTARTSIZE = 12 + 4 * Register.ssSIZE;
 
     @Override
     public void visit(Program it) {
@@ -48,7 +48,7 @@ public class IRBuilder extends ASTVisitor {
         PointerRegister s0Pointer = new PointerRegister(it.globalframesize - 8, Register.sp);
         currentBasicBlock.push_back(new store(raPointer, Register.ra));//这两个寄存器的操作也可以化成s0版本的
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        for (int i = 0; i < 11; ++i) {
+        for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new store(new PointerRegister(it.globalframesize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.globalframesize));
@@ -59,7 +59,7 @@ public class IRBuilder extends ASTVisitor {
             i.accept(this);
         }
         isGlobal = false;
-        for (int i = 0; i < 11; ++i) {
+        for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new load(new PointerRegister(it.globalframesize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
@@ -102,7 +102,7 @@ public class IRBuilder extends ASTVisitor {
         PointerRegister s0Pointer = new PointerRegister(it.frameSize - 8, Register.sp);
         currentBasicBlock.push_back(new store(raPointer, Register.ra));
         currentBasicBlock.push_back(new store(s0Pointer, Register.s0));
-        for (int i = 0; i < 11; ++i) {
+        for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new store(new PointerRegister(it.frameSize - 12 - i * 4 , Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new addri(Register.s0, Register.sp, it.frameSize));
@@ -127,7 +127,7 @@ public class IRBuilder extends ASTVisitor {
         if (it.returnType != null) {
             currentBasicBlock.push_back(new load(PointerRegister.min12, Register.a0));
         }
-        for (int i = 0; i < 11; ++i) {
+        for (int i = 0; i < Register.ssSIZE; ++i) {
             currentBasicBlock.push_back(new load(new PointerRegister(it.frameSize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));

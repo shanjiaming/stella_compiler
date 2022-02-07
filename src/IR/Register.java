@@ -37,6 +37,8 @@ public class Register extends Entity {
             new Register("s7"),
             new Register("s8"),
             new Register("s9"),
+            new Register("s10"),
+            new Register("s11"),
     };
 
 

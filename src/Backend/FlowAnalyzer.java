@@ -85,8 +85,8 @@ public class FlowAnalyzer extends Pass {
             }
         });
 
-        boolean[] sxisused = new boolean[11];
-        for(int i = 0; i < 11; ++i){
+        boolean[] sxisused = new boolean[Register.ssSIZE];
+        for(int i = 0; i < Register.ssSIZE; ++i){
             sxisused[i] = false;
             ContinueFor : for (var node : nodess) {
                 if(colormap.containsKey(node)) continue;
@@ -135,7 +135,7 @@ public class FlowAnalyzer extends Pass {
 //            while (iterator.hasNext()) {
 //                var k = iterator.next();
 //                Set<Integer> gk = copygragh.get(k);
-//                if (gk.size() < 11) {
+//                if (gk.size() < Register.ssSIZE) {
 //                    stk.add(k);
 //                    for (var i : gk) {
 //                        copygragh.get(i).remove(k);
@@ -146,7 +146,7 @@ public class FlowAnalyzer extends Pass {
 ////                mindegree = Math.min(mindegree, gk.size());
 //            }
 //            if (!flag) {
-////                for (int ii = 0; ii < mindegree - (11 - 1); ++ii) {
+////                for (int ii = 0; ii < mindegree - (Register.ssSIZE - 1); ++ii) {
 //                    iterator = ks.iterator();
 //                    var k = iterator.next();
 //                    Set<Integer> gk = copygragh.get(k);
@@ -159,21 +159,21 @@ public class FlowAnalyzer extends Pass {
 //            }
 //        }
 //
-//        boolean[] sxisused = new boolean[11];
-//        for (int i = 0; i < 11; ++i) {
+//        boolean[] sxisused = new boolean[Register.ssSIZE];
+//        for (int i = 0; i < Register.ssSIZE; ++i) {
 //            sxisused[i] = false;
 //        }
 //
 //        while (!stk.isEmpty()) {
 //            var k = stk.pop();
-//            boolean[] barray = new boolean[11];
-//            for (int i = 0; i < 11; ++i) {
+//            boolean[] barray = new boolean[Register.ssSIZE];
+//            for (int i = 0; i < Register.ssSIZE; ++i) {
 //                barray[i] = true;
 //            }
 //            for (var v : contractmap.get(k)) {
 //                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
 //            }
-//            for (int i = 0; i < 11; ++i) {
+//            for (int i = 0; i < Register.ssSIZE; ++i) {
 //                if (barray[i]) {
 //                    colormap.put(k, i);
 //                    sxisused[i] = true;
