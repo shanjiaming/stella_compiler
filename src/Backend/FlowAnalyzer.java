@@ -51,7 +51,7 @@ public class FlowAnalyzer extends Pass {
                     for (var a : s.defs()) {
                         for (var b : s.outs) {
                             if (b.equals(((move) s).psrc.address))
-                                break;
+                                continue;
                             if(a.equals(b)) continue;
                             contractmap.get(a).add(b);
                             contractmap.get(b).add(a);
