@@ -26,6 +26,8 @@ public class Register extends Entity {
     public static Register zero = new Register("zero");
     public static Register index = new Register("index");
     public static Register[] ss = new Register[]{
+            new Register("gp"),
+            new Register("tp"),
             new Register("s1"),
             new Register("s2"),
             new Register("s3"),
@@ -35,9 +37,10 @@ public class Register extends Entity {
             new Register("s7"),
             new Register("s8"),
             new Register("s9"),
-            new Register("s10"),
-            new Register("s11")
     };
+
+
+    public static final int ssSIZE = ss.length;
 
     public static Register[] a = new Register[] {a0,a1,a2,a3,a4,a5,a6,a7};
 
