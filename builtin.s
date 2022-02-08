@@ -455,75 +455,69 @@ array__size:                      # @array__size
 	.globl	ir_new_array   # -- Begin function ir_new_array
 	.p2align	2
 	.type	ir_new_array,@function
-ir_new_array:                  # @ir_new_array
+ir_new_array:                     # @ir_new_array
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)
 	.cfi_offset ra, -4
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a0, 20(sp)
-	sw	a1, 16(sp)
-	lw	a0, 0(a0)
-	slli	a0, a0, 2
-	bge	a0, a1, .LBB1_2
-# %bb.1:
-	sw	zero, 24(sp)
-	j	.LBB1_6
-.LBB1_2:
-	lw	a0, 20(sp)
-	lw	a1, 16(sp)
+	sw	a0, 24(sp)
+	sw	a1, 20(sp)
 	add	a0, a0, a1
 	lw	a0, 0(a0)
-	sw	a0, 12(sp)
+	sw	a0, 16(sp)
 	slli	a0, a0, 2
-	sw	a0, 8(sp)
+	sw	a0, 12(sp)
 	addi	a0, a0, 4
 	srai	a1, a0, 31
 	call	malloc
-	lw	a1, 12(sp)
-	addi	a2, a0, 4
-	sw	a2, 4(sp)
-	sw	a1, 0(a0)
-	sw	zero, 0(sp)
-.LBB1_3:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, 0(sp)
-	lw	a1, 8(sp)
-	bge	a0, a1, .LBB1_5
-# %bb.4:                                #   in Loop: Header=BB1_3 Depth=1
 	lw	a1, 16(sp)
-	lw	a0, 20(sp)
+	addi	a2, a0, 4
+	sw	a2, 8(sp)
+	sw	a1, 0(a0)
+	lw	a0, 24(sp)
+	lw	a1, 20(sp)
+	lw	a0, 0(a0)
+	addi	a1, a1, 4
+	slli	a0, a0, 2
+	bge	a0, a1, .LBB0_4
+# %bb.1:
+	sw	zero, 4(sp)
+.LBB0_2:                                # =>This Inner Loop Header: Depth=1
+	lw	a0, 4(sp)
+	lw	a1, 12(sp)
+	bge	a0, a1, .LBB0_7
+# %bb.3:                                #   in Loop: Header=BB0_2 Depth=1
+	lw	a0, 8(sp)
+	lw	a1, 4(sp)
+	add	a0, a0, a1
+	sw	zero, 0(a0)
+	lw	a0, 4(sp)
+	addi	a0, a0, 4
+	sw	a0, 4(sp)
+	j	.LBB0_2
+.LBB0_4:
+	sw	zero, 0(sp)
+.LBB0_5:                                # =>This Inner Loop Header: Depth=1
+	lw	a0, 0(sp)
+	lw	a1, 12(sp)
+	bge	a0, a1, .LBB0_7
+# %bb.6:                                #   in Loop: Header=BB0_5 Depth=1
+	lw	a1, 20(sp)
+	lw	a0, 24(sp)
 	addi	a1, a1, 4
 	call	ir_new_array
-	lw	a1, 4(sp)
+	lw	a1, 8(sp)
 	lw	a2, 0(sp)
 	add	a1, a1, a2
 	sw	a0, 0(a1)
 	lw	a0, 0(sp)
 	addi	a0, a0, 4
 	sw	a0, 0(sp)
-	j	.LBB1_3
-.LBB1_5:
-	lw	a0, 4(sp)
-	sw	a0, 24(sp)
-.LBB1_6:
-	lw	a0, 24(sp)
+	j	.LBB0_5
+.LBB0_7:
+	lw	a0, 8(sp)
 	lw	ra, 28(sp)
 	addi	sp, sp, 32
 	ret
