@@ -74,16 +74,16 @@ public class FlowAnalyzer extends Pass {
 
         ArrayList<Integer> nodess = new ArrayList<>(nodes);
 
-        Collections.sort(nodess, new Comparator<Integer>() {
-
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                int x = contractmap.get(o1).size() - contractmap.get(o2).size();
-                if (x > 0) return 1;
-                if (x < 0) return -1;
-                return 0;
-            }
-        });
+//        Collections.sort(nodess, new Comparator<Integer>() {
+//
+//            @Override
+//            public int compare(Integer o1, Integer o2) {
+//                int x = contractmap.get(o1).size() - contractmap.get(o2).size();
+//                if (x > 0) return 1;
+//                if (x < 0) return -1;
+//                return 0;
+//            }
+//        });
 
         boolean[] sxisused = new boolean[Register.ssSIZE];
         for (int i = 0; i < Register.ssSIZE; ++i) {
