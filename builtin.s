@@ -466,9 +466,9 @@ ir_new_array:                     # @ir_new_array
 	sw	a1, 20(sp)
 	add	a0, a0, a1
 	lw	a0, 0(a0)
-	sw	a0, 16(sp)
+	sw	a0, 16(sp)     # 16(sp) -> sz
 	slli	a0, a0, 2
-	sw	a0, 12(sp)
+	sw	a0, 12(sp)     # 12(sp) -> sz4 -- a7
 	addi	a0, a0, 4
 	srai	a1, a0, 31
 	call	malloc
@@ -483,19 +483,21 @@ ir_new_array:                     # @ir_new_array
 	slli	a0, a0, 2
 	bge	a0, a1, .LBB0_4
 # %bb.1:
-	sw	zero, 4(sp)
+	li  a5, 0
+	lw  a7, 12(sp)
+	lw  a6, 8(sp)
 .LBB0_2:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, 4(sp)
-	lw	a1, 12(sp)
+	mv	a0, a5           #4(sp) -> j -- a5
+	mv	a1, a7
 	bge	a0, a1, .LBB0_7
 # %bb.3:                                #   in Loop: Header=BB0_2 Depth=1
-	lw	a0, 8(sp)
-	lw	a1, 4(sp)
+	mv	a0, a6          #8(sp) -> ret -- a6
+	mv	a1, a5
 	add	a0, a0, a1
 	sw	zero, 0(a0)
-	lw	a0, 4(sp)
+	mv	a0, a5
 	addi	a0, a0, 4
-	sw	a0, 4(sp)
+	mv	a5, a0
 	j	.LBB0_2
 .LBB0_4:
 	sw	zero, 0(sp)
