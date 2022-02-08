@@ -482,6 +482,7 @@ ir_new_array:                     # @ir_new_array
 	addi	a1, a1, 4
 	slli	a0, a0, 2
 	bge	a0, a1, .LBB0_4
+	j	.LBB0_7
 # %bb.1:
 	li  a5, 0
 	lw  a7, 12(sp)
