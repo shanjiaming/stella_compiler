@@ -223,6 +223,7 @@ public class AsmBuilder extends Pass {
     public void visit(store it) {
         if(it.removeNumber > -10 && !sxisused[it.removeNumber]) return;
         if(it.mayBeRemovedBeacuseNoCall && nocall) return;
+//        应当把这个注掉，因为最多也只能优化R0.之前连带着的一堆分析也应该清掉，我还没清罢了。
         srp(RegisterToReg(it.reg), it.pointer);
     }
 
