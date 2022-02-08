@@ -489,7 +489,6 @@ ir_new_array:                     # @ir_new_array
 .LBB1_2:                                # =>This Inner Loop Header: Depth=1
 	addi	a0, a0, -4
 	sw	a0, 8(sp)
-	lw	a0, 8(sp)4
 	bltz	a0, .LBB1_4
 # %bb.3:                                #   in Loop: Header=BB1_2 Depth=1
 	lw	a1, 20(sp)
