@@ -131,6 +131,18 @@ public class IRBuilder extends ASTVisitor {
             currentBasicBlock.push_back(new load(new PointerRegister(it.frameSize - 12 - i * 4, Register.sp), Register.ss[i], i));
         }
         currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
+        currentBasicBlock.push_back(new load(s0Pointer, Register.s0));
         currentBasicBlock.push_back(new load(raPointer, Register.ra, true));
         currentBasicBlock.push_back(new addri(Register.sp, Register.sp, it.frameSize));
         currentBasicBlock.push_back(new reter());
