@@ -72,7 +72,7 @@ public class FlowAnalyzer extends Pass {
 
         Map<Integer, Integer> colormap = new HashMap<>();
 
-        ArrayList<Integer> nodess = new ArrayList<>(nodes);
+//        ArrayList<Integer> nodess = new ArrayList<>(nodes);
 
 //        Collections.sort(nodess, new Comparator<Integer>() {
 //
@@ -89,7 +89,7 @@ public class FlowAnalyzer extends Pass {
         for (int i = 0; i < Register.ssSIZE; ++i) {
             sxisused[i] = false;
             ContinueFor:
-            for (var node : nodess) {
+            for (var node : nodes) {
                 if (colormap.containsKey(node)) continue;
                 var crashs = contractmap.get(node);
                 for (var crash : crashs) {
