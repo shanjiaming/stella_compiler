@@ -73,7 +73,7 @@ public class FlowAnalyzer extends Pass {
         Map<Integer, Integer> colormap = new HashMap<>();
 
 //        ArrayList<Integer> nodess = new ArrayList<>(nodes);
-
+//
 //        Collections.sort(nodess, new Comparator<Integer>() {
 //
 //            @Override
@@ -84,22 +84,22 @@ public class FlowAnalyzer extends Pass {
 //                return 0;
 //            }
 //        });
-
-        boolean[] sxisused = new boolean[Register.ssSIZE];
-        for (int i = 0; i < Register.ssSIZE; ++i) {
-            sxisused[i] = false;
-            ContinueFor:
-            for (var node : nodes) {
-                if (colormap.containsKey(node)) continue;
-                var crashs = contractmap.get(node);
-                for (var crash : crashs) {
-                    if (Integer.valueOf(i).equals(colormap.get(crash)))
-                        continue ContinueFor;
-                }
-                colormap.put(node, i);
-                sxisused[i] = true;
-            }
-        }
+//
+//        boolean[] sxisused = new boolean[Register.ssSIZE];
+//        for (int i = 0; i < Register.ssSIZE; ++i) {
+//            sxisused[i] = false;
+//            ContinueFor:
+//            for (var node : nodess) {
+//                if (colormap.containsKey(node)) continue;
+//                var crashs = contractmap.get(node);
+//                for (var crash : crashs) {
+//                    if (Integer.valueOf(i).equals(colormap.get(crash)))
+//                        continue ContinueFor;
+//                }
+//                colormap.put(node, i);
+//                sxisused[i] = true;
+//            }
+//        }
 
 //        int colored = 0;
 //        int notcolored = 0;
@@ -113,75 +113,75 @@ public class FlowAnalyzer extends Pass {
 //        }
 //        System.out.println("colored = " + colored + " not colored = "+ notcolored);
 
-//        Stack<Integer> stk = new Stack<>();
-//
-//        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
-//
-//        for (var k : nodes) {
-//            Set<Integer> s = new HashSet<>();
-//            Set<Integer> v = contractmap.get(k);
-//            for (var i : v) {
-//                s.add(i);
-//            }
-//            copygragh.put(k, s);
-//        }
-//
-//
-//        Iterator<Integer> iterator;
-//        while (!copygragh.isEmpty()) {
-//            var ks = copygragh.keySet();
-//            boolean flag = false;
-//            iterator = ks.iterator();
-////            int mindegree = 100000;
-//            while (iterator.hasNext()) {
-//                var k = iterator.next();
-//                Set<Integer> gk = copygragh.get(k);
-//                if (gk.size() < Register.ssSIZE) {
-//                    stk.add(k);
-//                    for (var i : gk) {
-//                        copygragh.get(i).remove(k);
-//                    }
-//                    iterator.remove();
-//                    flag = true;
+        Stack<Integer> stk = new Stack<>();
+
+        Map<Integer, Set<Integer>> copygragh = new HashMap<>();
+
+        for (var k : nodes) {
+            Set<Integer> s = new HashSet<>();
+            Set<Integer> v = contractmap.get(k);
+            for (var i : v) {
+                s.add(i);
+            }
+            copygragh.put(k, s);
+        }
+
+
+        Iterator<Integer> iterator;
+        while (!copygragh.isEmpty()) {
+            var ks = copygragh.keySet();
+            boolean flag = false;
+            iterator = ks.iterator();
+//            int mindegree = 100000;
+            while (iterator.hasNext()) {
+                var k = iterator.next();
+                Set<Integer> gk = copygragh.get(k);
+                if (gk.size() < Register.ssSIZE) {
+                    stk.add(k);
+                    for (var i : gk) {
+                        copygragh.get(i).remove(k);
+                    }
+                    iterator.remove();
+                    flag = true;
+                }
+//                mindegree = Math.min(mindegree, gk.size());
+            }
+            if (!flag) {
+//                for (int ii = 0; ii < mindegree - (Register.ssSIZE - 1); ++ii) {
+                    iterator = ks.iterator();
+                    var k = iterator.next();
+                    Set<Integer> gk = copygragh.get(k);
+                    stk.add(k);
+                    for (var i : gk) {
+                        copygragh.get(i).remove(k);
+                    }
+                    iterator.remove();
 //                }
-////                mindegree = Math.min(mindegree, gk.size());
-//            }
-//            if (!flag) {
-////                for (int ii = 0; ii < mindegree - (Register.ssSIZE - 1); ++ii) {
-//                    iterator = ks.iterator();
-//                    var k = iterator.next();
-//                    Set<Integer> gk = copygragh.get(k);
-//                    stk.add(k);
-//                    for (var i : gk) {
-//                        copygragh.get(i).remove(k);
-//                    }
-//                    iterator.remove();
-////                }
-//            }
-//        }
-//
-//        boolean[] sxisused = new boolean[Register.ssSIZE];
-//        for (int i = 0; i < Register.ssSIZE; ++i) {
-//            sxisused[i] = false;
-//        }
-//
-//        while (!stk.isEmpty()) {
-//            var k = stk.pop();
-//            boolean[] barray = new boolean[Register.ssSIZE];
-//            for (int i = 0; i < Register.ssSIZE; ++i) {
-//                barray[i] = true;
-//            }
-//            for (var v : contractmap.get(k)) {
-//                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
-//            }
-//            for (int i = 0; i < Register.ssSIZE; ++i) {
-//                if (barray[i]) {
-//                    colormap.put(k, i);
-//                    sxisused[i] = true;
-//                    break;
-//                }
-//            }
-//        }
+            }
+        }
+
+        boolean[] sxisused = new boolean[Register.ssSIZE];
+        for (int i = 0; i < Register.ssSIZE; ++i) {
+            sxisused[i] = false;
+        }
+
+        while (!stk.isEmpty()) {
+            var k = stk.pop();
+            boolean[] barray = new boolean[Register.ssSIZE];
+            for (int i = 0; i < Register.ssSIZE; ++i) {
+                barray[i] = true;
+            }
+            for (var v : contractmap.get(k)) {
+                if (colormap.containsKey(v)) barray[colormap.get(v)] = false;
+            }
+            for (int i = 0; i < Register.ssSIZE; ++i) {
+                if (barray[i]) {
+                    colormap.put(k, i);
+                    sxisused[i] = true;
+                    break;
+                }
+            }
+        }
 
 
 //        colormap = new HashMap<>();
