@@ -462,7 +462,7 @@ ir_new_array:                     # @ir_new_array
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)
 	.cfi_offset ra, -4
-	mv	a7, a0
+	sw	a0, 24(sp)
 	sw	a1, 20(sp)
 	add	a0, a0, a1
 	lw	a0, 0(a0)
@@ -474,7 +474,7 @@ ir_new_array:                     # @ir_new_array
 	lw	a1, 16(sp)
 	sw	a0, 12(sp)
 	sw	a1, 0(a0)
-	mv	a1, a7
+	lw	a1, 24(sp)
 	addi	a0, a0, 4
 	sw	a0, 12(sp)
 	lw	a0, 20(sp)
@@ -491,7 +491,7 @@ ir_new_array:                     # @ir_new_array
 	bltz	a0, .LBB1_4
 # %bb.3:                                #   in Loop: Header=BB1_2 Depth=1
 	lw	a1, 20(sp)
-	mv	a0, a7
+	lw	a0, 24(sp)
 	addi	a1, a1, 4
 	call	ir_new_array
 	lw	a1, 12(sp)
