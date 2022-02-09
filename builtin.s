@@ -462,65 +462,46 @@ ir_new_array:                     # @ir_new_array
 	.cfi_def_cfa_offset 32
 	sw	ra, 28(sp)
 	.cfi_offset ra, -4
-	sw	a0, 24(sp)
+	mv	a7, a0
 	sw	a1, 20(sp)
 	add	a0, a0, a1
 	lw	a0, 0(a0)
-	sw	a0, 16(sp)     # 16(sp) -> sz
+	sw	a0, 16(sp)
 	slli	a0, a0, 2
-	sw	a0, 12(sp)     # 12(sp) -> sz4 -- a7
 	addi	a0, a0, 4
 	srai	a1, a0, 31
 	call	malloc
 	lw	a1, 16(sp)
-	addi	a2, a0, 4
-	sw	a2, 8(sp)
+	sw	a0, 12(sp)
 	sw	a1, 0(a0)
-	lw	a0, 24(sp)
-	lw	a1, 20(sp)
-	lw	a0, 0(a0)
-	addi	a1, a1, 4
-	slli	a0, a0, 2
-	bge	a0, a1, .LBB0_4
-	j	.LBB0_7        # I hack null! I don't make it null
-# %bb.1:
-	li  a5, 0
-	lw  a7, 12(sp)
-	lw  a6, 8(sp)
-.LBB0_2:                                # =>This Inner Loop Header: Depth=1
-	mv	a0, a5           #4(sp) -> j -- a5
 	mv	a1, a7
-	bge	a0, a1, .LBB0_7
-# %bb.3:                                #   in Loop: Header=BB0_2 Depth=1
-	mv	a0, a6          #8(sp) -> ret -- a6
-	mv	a1, a5
-	add	a0, a0, a1
-	sw	zero, 0(a0)
-	mv	a0, a5
 	addi	a0, a0, 4
-	mv	a5, a0
-	j	.LBB0_2
-.LBB0_4:
-	sw	zero, 0(sp)
-.LBB0_5:                                # =>This Inner Loop Header: Depth=1
-	lw	a0, 0(sp)
-	lw	a1, 12(sp)
-	bge	a0, a1, .LBB0_7
-# %bb.6:                                #   in Loop: Header=BB0_5 Depth=1
+	sw	a0, 12(sp)
+	lw	a0, 20(sp)
+	lw	a1, 0(a1)
+	addi	a0, a0, 4
+	slli	a1, a1, 2
+	blt	a1, a0, .LBB1_4
+# %bb.1:
+	lw	a0, 16(sp)
+	slli	a0, a0, 2
+.LBB1_2:                                # =>This Inner Loop Header: Depth=1
+	addi	a0, a0, -4
+	sw	a0, 8(sp)
+	bltz	a0, .LBB1_4
+# %bb.3:                                #   in Loop: Header=BB1_2 Depth=1
 	lw	a1, 20(sp)
-	lw	a0, 24(sp)
+	mv	a0, a7
 	addi	a1, a1, 4
 	call	ir_new_array
-	lw	a1, 8(sp)
-	lw	a2, 0(sp)
+	lw	a1, 12(sp)
+	lw	a2, 8(sp)
 	add	a1, a1, a2
 	sw	a0, 0(a1)
-	lw	a0, 0(sp)
-	addi	a0, a0, 4
-	sw	a0, 0(sp)
-	j	.LBB0_5
-.LBB0_7:
 	lw	a0, 8(sp)
+	j	.LBB1_2
+.LBB1_4:
+	lw	a0, 12(sp)
 	lw	ra, 28(sp)
 	addi	sp, sp, 32
 	ret
